@@ -45,6 +45,21 @@ export const NODE_SPECS: NodeSpec[] = [
   { kind: 'browser_screenshot', category: '浏览器', label: '网页截图', node_type: 'atomic', inputs: [''], outputs: [''], widgets: [] },
   { kind: 'browser_wait', category: '浏览器', label: '等待', node_type: 'atomic', inputs: [''], outputs: [''], widgets: [{ name: 'seconds', type: 'number', default: 1.0 }] },
   { kind: 'browser_scroll', category: '浏览器', label: '滚动页面', node_type: 'atomic', inputs: [''], outputs: [''], widgets: [{ name: 'dx', type: 'number', default: 0 }, { name: 'dy', type: 'number', default: 0 }] },
+  // === Excel 节点 ===
+  { kind: 'excel_read', category: 'Excel', label: '读取Excel/CSV', node_type: 'atomic', inputs: [''], outputs: [''], widgets: [{ name: 'path', type: 'text', default: '' }, { name: 'column', type: 'text', default: '' }, { name: 'value', type: 'text', default: '' }] },
+  { kind: 'excel_write', category: 'Excel', label: '写入Excel/CSV', node_type: 'atomic', inputs: [''], outputs: [''], widgets: [{ name: 'path', type: 'text', default: '' }, { name: 'sheet', type: 'text', default: 'Sheet1' }] },
+  // === 网络节点 ===
+  { kind: 'http_request', category: '网络', label: 'HTTP请求', node_type: 'atomic', inputs: [''], outputs: [''], widgets: [{ name: 'method', type: 'combo', default: 'GET', options: ['GET', 'POST', 'PUT', 'DELETE'] }, { name: 'url', type: 'text', default: '' }] },
+  { kind: 'http_get', category: '网络', label: 'GET请求', node_type: 'atomic', inputs: [''], outputs: [''], widgets: [{ name: 'url', type: 'text', default: '' }] },
+  { kind: 'http_post', category: '网络', label: 'POST请求', node_type: 'atomic', inputs: [''], outputs: [''], widgets: [{ name: 'url', type: 'text', default: '' }, { name: 'body', type: 'text', default: '' }] },
+  { kind: 'http_put', category: '网络', label: 'PUT请求', node_type: 'atomic', inputs: [''], outputs: [''], widgets: [{ name: 'url', type: 'text', default: '' }, { name: 'body', type: 'text', default: '' }] },
+  { kind: 'http_delete', category: '网络', label: 'DELETE请求', node_type: 'atomic', inputs: [''], outputs: [''], widgets: [{ name: 'url', type: 'text', default: '' }] },
+  // === 文件节点 ===
+  { kind: 'fs_read', category: '文件', label: '读取文件', node_type: 'atomic', inputs: [''], outputs: [''], widgets: [{ name: 'path', type: 'text', default: '' }] },
+  { kind: 'fs_write', category: '文件', label: '写入文件', node_type: 'atomic', inputs: [''], outputs: [''], widgets: [{ name: 'path', type: 'text', default: '' }, { name: 'content', type: 'text', default: '' }] },
+  { kind: 'fs_delete', category: '文件', label: '删除文件', node_type: 'atomic', inputs: [''], outputs: [''], widgets: [{ name: 'path', type: 'text', default: '' }] },
+  { kind: 'fs_list', category: '文件', label: '列出目录', node_type: 'atomic', inputs: [''], outputs: [''], widgets: [{ name: 'path', type: 'text', default: '' }] },
+  { kind: 'fs_exists', category: '文件', label: '检查是否存在', node_type: 'atomic', inputs: [''], outputs: [''], widgets: [{ name: 'path', type: 'text', default: '' }] },
 ]
 
 export const SPEC_BY_KIND: Record<string, NodeSpec> = Object.fromEntries(

@@ -2,9 +2,9 @@
   "_source": ".autocode/wiki/tasks/*.md",
   "_note": "自动从 Wiki 重建，请编辑 wiki/tasks/*.md",
   "project": "自动系统",
-  "total_tasks": 22,
-  "completed": 22,
-  "updated_at": "2026-07-08 23:20",
+  "total_tasks": 14,
+  "completed": 11,
+  "updated_at": "2026-07-08 23:24",
   "tasks": [
     {
       "id": "T-F001",
@@ -169,7 +169,7 @@
       "id": "T-F012",
       "title": "可视化画布增强（Vue3+LiteGraph MVP 收口）",
       "feature_id": "F012",
-      "status": "done",
+      "status": "planned",
       "priority": "P0",
       "claimed_by": "",
       "passes": false,
@@ -183,7 +183,7 @@
       "id": "T-F013",
       "title": "工程卫生与治理（task.json 刷新 / 临时文件清理 / git 初始化 / 规格一致性）",
       "feature_id": "F013",
-      "status": "done",
+      "status": "planned",
       "priority": "P1",
       "claimed_by": "",
       "passes": false,
@@ -195,7 +195,7 @@
       "id": "T-F014",
       "title": "启动器与 L5 网关健壮性（端口统一 + --mode both 修复）",
       "feature_id": "F014",
-      "status": "done",
+      "status": "planned",
       "priority": "P0",
       "claimed_by": "",
       "passes": false,
@@ -203,94 +203,6 @@
       "depends_on": [
         "F007"
       ],
-      "completed_at": ""
-    },
-    {
-      "id": "T-F015",
-      "title": "T-F015",
-      "feature_id": "T-F015",
-      "status": "done",
-      "priority": "P1",
-      "claimed_by": "",
-      "passes": false,
-      "depends_on": [],
-      "completed_at": ""
-    },
-    {
-      "id": "T-F016",
-      "title": "T-F016",
-      "feature_id": "T-F016",
-      "status": "done",
-      "priority": "P1",
-      "claimed_by": "",
-      "passes": false,
-      "depends_on": [],
-      "completed_at": ""
-    },
-    {
-      "id": "T-F017",
-      "title": "T-F017",
-      "feature_id": "T-F017",
-      "status": "done",
-      "priority": "P1",
-      "claimed_by": "",
-      "passes": false,
-      "depends_on": [],
-      "completed_at": ""
-    },
-    {
-      "id": "T-F019",
-      "title": "T-F019",
-      "feature_id": "T-F019",
-      "status": "done",
-      "priority": "P1",
-      "claimed_by": "",
-      "passes": false,
-      "depends_on": [],
-      "completed_at": ""
-    },
-    {
-      "id": "T-F020",
-      "title": "T-F020",
-      "feature_id": "T-F020",
-      "status": "done",
-      "priority": "P1",
-      "claimed_by": "",
-      "passes": false,
-      "depends_on": [],
-      "completed_at": ""
-    },
-    {
-      "id": "T-F021",
-      "title": "T-F021",
-      "feature_id": "T-F021",
-      "status": "done",
-      "priority": "P1",
-      "claimed_by": "",
-      "passes": false,
-      "depends_on": [],
-      "completed_at": ""
-    },
-    {
-      "id": "T-F023",
-      "title": "T-F023",
-      "feature_id": "T-F023",
-      "status": "done",
-      "priority": "P1",
-      "claimed_by": "",
-      "passes": false,
-      "depends_on": [],
-      "completed_at": ""
-    },
-    {
-      "id": "T-F024",
-      "title": "T-F024",
-      "feature_id": "T-F024",
-      "status": "done",
-      "priority": "P1",
-      "claimed_by": "",
-      "passes": false,
-      "depends_on": [],
       "completed_at": ""
     }
   ]

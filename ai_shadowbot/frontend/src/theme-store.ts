@@ -8,6 +8,9 @@ export const CATEGORY_COLORS: Record<string, string> = {
   应用: '#3fb950',
   系统: '#8b949e',
   浏览器: '#6C5CE7',
+  Excel: '#217346',
+  网络: '#e14e36',
+  文件: '#d4a574',
 }
 
 export function categoryColor(category: string): string {

@@ -21,6 +21,9 @@ from ai_shadowbot.planner import Planner, MockLLMClient, PlanResult
 ALL_ACTION_NAMES = {
     "click", "double_click", "right_click", "type_text", "key_press",
     "screenshot", "wait", "open_app", "scroll",
+    # F015: 浏览器
+    "browser_navigate", "browser_click", "browser_type", "browser_screenshot",
+    "browser_wait", "browser_scroll", "browser_extract_text",
     # F016: Excel/CSV
     "excel_read", "excel_write",
     # F017: HTTP
