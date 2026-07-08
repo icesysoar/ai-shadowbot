@@ -237,3 +237,12 @@
 
 [Dash] 2026-07-08 02:15 - Saved via dashboard
 [Dash] 2026-07-08 02:15 - Saved via dashboard
+
+🔧 [2026-07-08] [林织羽] F012 画布增强 6 项子任务完成 — npm run build 通过（32 modules, 8.76s）
+- F012.1 节点拖拽放置：HTML5 drag/drop + convertOffsetToCanvas + 点击兜底 + 拖拽提示
+- F012.2 调度面板：SchedulerPanel.vue 对接 /api/scheduler/triggers CRUD + toggle + 状态轮询
+- F012.3 日志面板：LogPanel.vue 对接 runs-extended + execution detail + 截图弹窗
+- F012.4 模板面板：TemplatePanel.vue 对接 /api/templates + 搜索/分类/使用/另存
+- F012.5 combo 对接：palette API → 按 kind 匹配 options → spec 内置 fallback
+- F012.6 DPR 优化：ensureDPR canvas 物理像素 + setTransform + resizeCanvas 二次确保 + matchMedia DPR 监听
+- 文件：GraphCanvas.vue(重写)/api-service.ts(重写)/SchedulerPanel.vue(新建)/LogPanel.vue(新建)/TemplatePanel.vue(新建)/App.vue(重写) + task.json/project-spec.json 更新

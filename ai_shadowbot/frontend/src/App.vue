@@ -14,7 +14,7 @@
     </header>
 
     <div class="body">
-      <!-- 左：调色板 -->
+      <!-- 左：调色板（支持拖拽 + 点击） -->
       <aside class="palette">
         <h3>节点调色板</h3>
         <div v-for="(group, cat) in grouped" :key="cat" class="pal-group">
@@ -23,6 +23,8 @@
             v-for="spec in group"
             :key="spec.kind"
             class="pal-item"
+            draggable="true"
+            @dragstart="onDragStart($event, spec.kind)"
             @click="addNode(spec.kind)"
           >
             {{ spec.label }}
@@ -38,54 +40,86 @@
         </div>
       </main>
 
-      <!-- 右：属性 + AI 编译 + 状态 -->
+      <!-- 右：Tab 面板 -->
       <aside class="side">
-        <section class="panel">
-          <h3>AI 编译</h3>
-          <textarea v-model="aiQuery" rows="2" placeholder="用自然语言描述工作流，例如：打开记事本并输入 hello 然后截图" />
-          <button class="primary" @click="aiCompile">编译到画布</button>
-        </section>
+        <div class="tabs">
+          <button
+            v-for="tab in tabs"
+            :key="tab.id"
+            :class="['tab-btn', { active: activeTab === tab.id }]"
+            @click="activeTab = tab.id"
+          >
+            {{ tab.label }}
+          </button>
+        </div>
 
-        <section class="panel">
-          <h3>属性</h3>
-          <div v-if="selected" class="props">
-            <div class="field">
-              <label>标签</label>
-              <input :value="selected.label" @input="onLabel" />
-            </div>
-            <div class="field" v-for="w in selected.widgets" :key="w.name">
-              <label>{{ w.name }}</label>
-              <select
-                v-if="w.type === 'combo'"
-                :value="w.value"
-                @change="onWidget(w.name, $event)"
-              >
-                <option v-for="opt in comboOptions(w)" :key="opt" :value="opt">{{ opt }}</option>
-              </select>
-              <input
-                v-else-if="w.type === 'number'"
-                type="number"
-                :value="w.value"
-                @input="onWidget(w.name, $event)"
-              />
-              <input v-else type="text" :value="w.value" @input="onWidget(w.name, $event)" />
-            </div>
-            <div class="hint">类型：{{ selected.node_type }} · {{ selected.kind }}</div>
-          </div>
-          <div v-else class="empty">在画布中选择一个节点以编辑参数</div>
-        </section>
+        <div class="tab-content">
+          <!-- 调度面板 -->
+          <SchedulerPanel v-if="activeTab === 'scheduler'" />
 
-        <section class="panel">
-          <h3>执行状态</h3>
-          <div v-if="logs.length" class="logs">
-            <div v-for="(l, i) in logs" :key="i" :class="['log', l.status]">
-              <span class="badge">{{ badge(l.status) }}</span>
-              {{ l.node_id }} · {{ l.node_type }}
-              <span v-if="l.error" class="err">⚠ {{ l.error }}</span>
-            </div>
+          <!-- 日志面板 -->
+          <LogPanel
+            v-if="activeTab === 'logs'"
+            :current-workflow-id="currentId"
+          />
+
+          <!-- 模板面板 -->
+          <TemplatePanel
+            v-if="activeTab === 'templates'"
+            :current-workflow-id="currentId"
+            @use-template="onUseTemplate"
+          />
+
+          <!-- AI 编译 + 属性 + 状态面板（原有面板合并） -->
+          <div v-if="activeTab === 'properties'">
+            <section class="panel">
+              <h3>AI 编译</h3>
+              <textarea v-model="aiQuery" rows="2" placeholder="用自然语言描述工作流，例如：打开记事本并输入 hello 然后截图" />
+              <button class="primary" @click="aiCompile">编译到画布</button>
+            </section>
+
+            <section class="panel">
+              <h3>属性</h3>
+              <div v-if="selected" class="props">
+                <div class="field">
+                  <label>标签</label>
+                  <input :value="selected.label" @input="onLabel" />
+                </div>
+                <div class="field" v-for="w in selected.widgets" :key="w.name">
+                  <label>{{ w.name }}</label>
+                  <select
+                    v-if="w.type === 'combo'"
+                    :value="w.value"
+                    @change="onWidget(w.name, $event)"
+                  >
+                    <option v-for="opt in comboOptions(w)" :key="opt" :value="opt">{{ opt }}</option>
+                  </select>
+                  <input
+                    v-else-if="w.type === 'number'"
+                    type="number"
+                    :value="w.value"
+                    @input="onWidget(w.name, $event)"
+                  />
+                  <input v-else type="text" :value="w.value" @input="onWidget(w.name, $event)" />
+                </div>
+                <div class="hint">类型：{{ selected.node_type }} · {{ selected.kind }}</div>
+              </div>
+              <div v-else class="empty">在画布中选择一个节点以编辑参数</div>
+            </section>
+
+            <section class="panel">
+              <h3>执行状态</h3>
+              <div v-if="logs.length" class="logs">
+                <div v-for="(l, i) in logs" :key="i" :class="['log', l.status]">
+                  <span class="badge">{{ badge(l.status) }}</span>
+                  {{ l.node_id }} · {{ l.node_type }}
+                  <span v-if="l.error" class="err">⚠ {{ l.error }}</span>
+                </div>
+              </div>
+              <div v-else class="empty">尚无执行记录</div>
+            </section>
           </div>
-          <div v-else class="empty">尚无执行记录</div>
-        </section>
+        </div>
       </aside>
     </div>
 
@@ -108,10 +142,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed } from 'vue'
+import { ref, reactive, computed, onMounted } from 'vue'
 import GraphCanvas, { type NodeSnapshot } from './components/GraphCanvas.vue'
+import SchedulerPanel from './components/SchedulerPanel.vue'
+import LogPanel from './components/LogPanel.vue'
+import TemplatePanel from './components/TemplatePanel.vue'
 import { NODE_SPECS } from './nodes/specs'
-import { api, type NodeLog } from './api-service'
+import { api, type NodeLog, type PaletteNode } from './api-service'
 import type { Flow } from './converters'
 
 const canvasRef = ref<InstanceType<typeof GraphCanvas> | null>(null)
@@ -125,6 +162,26 @@ const currentId = ref<string | null>(null)
 const showLoad = ref(false)
 const wfList = ref<{ id: string; name: string }[]>([])
 const toast = ref('')
+
+// ---- Tab 系统 ----
+const tabs = [
+  { id: 'scheduler', label: '调度' },
+  { id: 'logs', label: '日志' },
+  { id: 'templates', label: '模板' },
+  { id: 'properties', label: '属性' },
+]
+const activeTab = ref('properties')
+
+// ---- Palette 数据 (F012.5) ----
+const paletteNodes = ref<PaletteNode[]>([])
+
+onMounted(async () => {
+  try {
+    paletteNodes.value = await api.palette()
+  } catch {
+    // palette 加载失败不阻塞，combo 回退到 spec 内置 options
+  }
+})
 
 const grouped = computed(() => {
   const g: Record<string, typeof NODE_SPECS> = {}
@@ -141,12 +198,22 @@ function showToast(msg: string) {
 
 function onSelect(s: NodeSnapshot | null) {
   selected.value = s
+  // 选择节点时自动切到属性 tab
+  if (s) activeTab.value = 'properties'
 }
+
 function onStatus(d: { nodeCount: number; linkCount: number }) {
   stats.nodeCount = d.nodeCount
   stats.linkCount = d.linkCount
 }
 
+// ---- 拖拽 (F012.1) ----
+function onDragStart(e: DragEvent, kind: string) {
+  e.dataTransfer?.setData('text/plain', kind)
+  e.dataTransfer!.effectAllowed = 'move'
+}
+
+// ---- 点击添加（兜底） ----
 function addNode(kind: string) {
   canvasRef.value?.addNode(kind)
 }
@@ -158,8 +225,25 @@ function onLabel(e: Event) {
   canvasRef.value?.updateNode(selected.value.id, { label: v })
 }
 
-function comboOptions(w: { value: any }) {
-  // combo 的候选值在 node 上未必暴露，这里用占位；真实选项由后端 schema 决定
+// ---- Combo 选项对接后端 palette (F012.5) ----
+function comboOptions(w: { name: string; value: any; type: string }) {
+  // 1) 从后端 palette 按 kind 匹配
+  if (selected.value && paletteNodes.value.length) {
+    const pn = paletteNodes.value.find((p) => p.kind === selected.value!.kind)
+    if (pn) {
+      const param = pn.params?.find((p) => p.name === w.name)
+      if (param?.options?.length) {
+        return param.options
+      }
+    }
+  }
+  // 2) 从本地 spec 中取 options（fallback）
+  const spec = NODE_SPECS.find((s) => s.kind === selected.value?.kind)
+  if (spec) {
+    const ws = spec.widgets.find((sw) => sw.name === w.name)
+    if (ws?.options?.length) return ws.options
+  }
+  // 3) 最后兜底：当前值作为唯一条目
   return Array.isArray(w.value) ? w.value : [w.value]
 }
 
@@ -171,6 +255,25 @@ function onWidget(name: string, e: Event) {
   const w = selected.value.widgets.find((x) => x.name === name)
   if (w) w.value = v
   canvasRef.value?.updateNode(selected.value.id, { widgets: { [name]: v } })
+}
+
+// ---- 模板使用回调 ----
+async function onUseTemplate(templateId: string) {
+  try {
+    const result = await api.createFromTemplate(templateId)
+    if (result.id) {
+      // 加载新建的工作流
+      const wf = await api.getWorkflow(result.id)
+      canvasRef.value?.loadFlow(wf.flow)
+      canvasRef.value?.clearStatus()
+      currentId.value = wf.id
+      workflowName.value = wf.name
+      logs.value = []
+      showToast('已从模板创建：' + wf.name)
+    }
+  } catch (err: any) {
+    showToast('使用模板失败：' + err.message)
+  }
 }
 
 async function newWorkflow() {
@@ -313,6 +416,7 @@ function badge(s: string) {
   min-height: 0;
 }
 
+/* ---- 调色板 ---- */
 .palette {
   width: 180px;
   background: var(--bg-1);
@@ -343,8 +447,13 @@ function badge(s: string) {
   margin-bottom: 4px;
   font-size: 12px;
   padding: 5px 8px;
+  cursor: grab;
+}
+.pal-item:active {
+  cursor: grabbing;
 }
 
+/* ---- 画布 ---- */
 .canvas-area {
   flex: 1;
   position: relative;
@@ -362,15 +471,58 @@ function badge(s: string) {
   pointer-events: none;
 }
 
+/* ---- 右侧面板 ---- */
 .side {
   width: 280px;
   background: var(--bg-1);
   border-left: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+/* ---- Tab 栏 ---- */
+.tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.tab-btn {
+  flex: 1;
+  padding: 8px 0;
+  font-size: 12px;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--fg-1);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.tab-btn:hover {
+  color: var(--fg-0);
+}
+.tab-btn.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+.tab-content {
+  flex: 1;
   padding: 10px;
   overflow-y: auto;
+  min-height: 0;
 }
+
+/* ---- 面板内部 ---- */
 .panel {
   margin-bottom: 16px;
+}
+.panel h3 {
+  margin: 0 0 8px;
+  font-size: 13px;
+  color: var(--fg-1);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 .field {
   margin-bottom: 8px;
@@ -380,6 +532,11 @@ function badge(s: string) {
   font-size: 12px;
   color: var(--fg-1);
   margin-bottom: 3px;
+}
+.field input,
+.field select {
+  width: 100%;
+  box-sizing: border-box;
 }
 .hint {
   font-size: 11px;
@@ -391,6 +548,8 @@ function badge(s: string) {
   color: var(--fg-1);
   padding: 8px 0;
 }
+
+/* ---- 执行日志 ---- */
 .logs .log {
   font-size: 12px;
   padding: 4px 6px;
@@ -416,6 +575,7 @@ function badge(s: string) {
   margin-left: 4px;
 }
 
+/* ---- 加载对话框 ---- */
 .modal-mask {
   position: fixed;
   inset: 0;

@@ -182,15 +182,15 @@
     {
       "id": "F012",
       "title": "可视化画布增强（Vue3+LiteGraph MVP 收口）",
-      "status": "planned",
-      "claimed_by": "",
+      "status": "done",
+      "claimed_by": "lin-zhiyu",
       "tasks": [
-        { "id": "F012.1", "title": "节点拖拽放置", "status": "planned", "claimed_by": "" },
-        { "id": "F012.2", "title": "调度面板前端化", "status": "planned", "claimed_by": "" },
-        { "id": "F012.3", "title": "日志面板前端化", "status": "planned", "claimed_by": "" },
-        { "id": "F012.4", "title": "模板面板前端化", "status": "planned", "claimed_by": "" },
-        { "id": "F012.5", "title": "属性面板 combo 对接后端 palette", "status": "planned", "claimed_by": "" },
-        { "id": "F012.6", "title": "DPR 精细优化", "status": "planned", "claimed_by": "" }
+        { "id": "F012.1", "title": "节点拖拽放置", "status": "done", "claimed_by": "lin-zhiyu" },
+        { "id": "F012.2", "title": "调度面板前端化", "status": "done", "claimed_by": "lin-zhiyu" },
+        { "id": "F012.3", "title": "日志面板前端化", "status": "done", "claimed_by": "lin-zhiyu" },
+        { "id": "F012.4", "title": "模板面板前端化", "status": "done", "claimed_by": "lin-zhiyu" },
+        { "id": "F012.5", "title": "属性面板 combo 对接后端 palette", "status": "done", "claimed_by": "lin-zhiyu" },
+        { "id": "F012.6", "title": "DPR 精细优化", "status": "done", "claimed_by": "lin-zhiyu" }
       ]
     },
     {

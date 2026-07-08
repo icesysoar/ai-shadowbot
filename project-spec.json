@@ -180,6 +180,11 @@
       "who": "sulin-yuan",
       "when": "2026-07-08",
       "what": "F012→in_progress, claimed_by=lin-zhiyu; 派发6子任务(拖拽放置/调度面板/日志面板/模板面板/palette对接/DPR优化)"
+    },
+    {
+      "who": "lin-zhiyu",
+      "when": "2026-07-08",
+      "what": "F012 画布增强 6 子任务全部完成：(1)节点拖拽放置 HTML5 drag/drop + GraphCanvas.addNodeAtPos + 点击兜底；(2)调度面板 SchedulerPanel.vue 对接 /api/scheduler/triggers CRUD+toggle+状态；(3)日志面板 LogPanel.vue 对接 /api/workflows/{id}/runs-extended + /api/execution/{run_id}/detail + 截图弹窗；(4)模板面板 TemplatePanel.vue 对接 /api/templates CRUD + 搜索/分类/使用/另存；(5)属性面板 combo 对接后端 /api/palette → 按 kind 匹配 options → spec 内置 fallback；(6)DPR 精细优化 ensureDPR() 强制 canvas.width/height = clientWidth*Height * devicePixelRatio + ctx.setTransform + resizeCanvas 后二次确保 + matchMedia 监听 DPR 变化。npm run build 通过（32 modules, 8.76s）"
     }
   ],
   "consensus_review": {
