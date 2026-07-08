@@ -458,68 +458,89 @@
       "updated_at": "2026-07-08 02:15:48"
     },
     {
-      "id": "F016",
-      "title": "Excel/CSV操作节点",
-      "status": "in_progress",
+      "id": "F015",
+      "title": "浏览器自动化节点",
+      "status": "done",
       "claimed_by": "lu-qianji",
-      "description": "Excel/CSV读写操作: read/write/merge/filter。基于openpyxl+csv标准库。",
+      "description": "Soara_browser Bridge集成: navigate/click/type/screenshot/wait/scroll。browser_worker.py+引擎+compiler。",
       "depends_on": [
         "F002",
         "F006"
       ],
-      "acceptance_criteria": [],
-      "subtasks": [],
-      "retry_count": 0,
+      "acceptance_criteria": [
+        "42 tests pass",
+        "dry_run不连bridge",
+        "guardrails兼容"
+      ],
       "_schema": "feature/v1",
-      "updated_at": "2026-07-08 23:00"
+      "updated_at": "2026-07-08"
+    },
+    {
+      "id": "F016",
+      "title": "Excel/CSV操作节点",
+      "status": "done",
+      "claimed_by": "lu-qianji",
+      "description": "Excel/CSV读写: read/write/merge/filter。excel_worker.py(openpyxl+csv)。",
+      "depends_on": [
+        "F002",
+        "F006"
+      ],
+      "acceptance_criteria": [
+        "12 tests pass",
+        "openpyxl lazy import"
+      ],
+      "_schema": "feature/v1",
+      "updated_at": "2026-07-08"
     },
     {
       "id": "F017",
       "title": "HTTP/API请求节点",
-      "status": "in_progress",
+      "status": "done",
       "claimed_by": "lu-qianji",
-      "description": "HTTP请求操作: GET/POST/PUT/DELETE with headers/body。基于requests库。",
+      "description": "HTTP请求: GET/POST/PUT/DELETE。http_worker.py(requests)。",
       "depends_on": [
         "F002",
         "F006"
       ],
-      "acceptance_criteria": [],
-      "subtasks": [],
-      "retry_count": 0,
+      "acceptance_criteria": [
+        "15 tests pass",
+        "豁免shell黑名单"
+      ],
       "_schema": "feature/v1",
-      "updated_at": "2026-07-08 23:00"
+      "updated_at": "2026-07-08"
     },
     {
       "id": "F019",
       "title": "文件系统操作节点",
-      "status": "in_progress",
+      "status": "done",
       "claimed_by": "lu-qianji",
-      "description": "文件系统操作: read/write/delete/copy/move/list/mkdir/exists。基于Python stdlib。",
+      "description": "文件系统: read/write/delete/copy/move/list/mkdir。filesystem_worker.py(stdlib)。",
       "depends_on": [
         "F002",
         "F006"
       ],
-      "acceptance_criteria": [],
-      "subtasks": [],
-      "retry_count": 0,
+      "acceptance_criteria": [
+        "29 tests pass",
+        "fs_delete→CONFIRM"
+      ],
       "_schema": "feature/v1",
-      "updated_at": "2026-07-08 23:00"
+      "updated_at": "2026-07-08"
     },
     {
       "id": "F023",
       "title": "画布撤销/重做",
-      "status": "in_progress",
+      "status": "done",
       "claimed_by": "lin-zhiyu",
-      "description": "Ctrl+Z/Y 撤销重做。graph.serialize()快照栈，最大50步。",
+      "description": "Ctrl+Z/Y撤销重做。graph.serialize()快照栈MAX50。",
       "depends_on": [
         "F008",
         "F012"
       ],
-      "acceptance_criteria": [],
-      "subtasks": [],
-      "retry_count": 0,
+      "acceptance_criteria": [
+        "npm build通过"
+      ],
       "_schema": "feature/v1",
-      "updated_at": "2026-07-08 23:00"
+      "updated_at": "2026-07-08"
     }
   ]
 }

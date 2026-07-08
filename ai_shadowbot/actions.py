@@ -45,6 +45,43 @@ ACTION_TYPES: List[Dict[str, Any]] = [
      "desc": "打开指定名称的应用程序"},
     {"type": "scroll", "params": {"dx": int, "dy": int}, "required": ["dx", "dy"], "dangerous": False,
      "desc": "滚动鼠标滚轮，dy 为正向下滚、为负向上滚，dx 为横向"},
+    # ---- Excel/CSV (F016) ----
+    {"type": "excel_read", "params": {"path": str, "sheet": str, "delimiter": str, "has_header": bool}, "required": ["path"], "dangerous": False,
+     "desc": "读取 Excel/CSV 文件内容"},
+    {"type": "excel_write", "params": {"path": str, "headers": list, "rows": list, "sheet": str}, "required": ["path", "headers", "rows"], "dangerous": False,
+     "desc": "写入数据到 Excel/CSV 文件"},
+    # ---- HTTP (F017) ----
+    {"type": "http_request", "params": {"method": str, "url": str, "headers": dict, "body": str, "timeout": int}, "required": ["method", "url"], "dangerous": False,
+     "desc": "发送 HTTP 请求"},
+    {"type": "http_get", "params": {"url": str, "headers": dict}, "required": ["url"], "dangerous": False,
+     "desc": "发送 HTTP GET 请求"},
+    {"type": "http_post", "params": {"url": str, "body": str, "headers": dict}, "required": ["url"], "dangerous": False,
+     "desc": "发送 HTTP POST 请求"},
+    {"type": "http_put", "params": {"url": str, "body": str, "headers": dict}, "required": ["url"], "dangerous": False,
+     "desc": "发送 HTTP PUT 请求"},
+    {"type": "http_delete", "params": {"url": str, "headers": dict}, "required": ["url"], "dangerous": False,
+     "desc": "发送 HTTP DELETE 请求"},
+    # ---- 文件系统 (F019) ----
+    {"type": "fs_read", "params": {"path": str, "encoding": str}, "required": ["path"], "dangerous": False,
+     "desc": "读取文件内容"},
+    {"type": "fs_write", "params": {"path": str, "content": str, "encoding": str}, "required": ["path", "content"], "dangerous": False,
+     "desc": "写入内容到文件"},
+    {"type": "fs_append", "params": {"path": str, "content": str}, "required": ["path", "content"], "dangerous": False,
+     "desc": "追加内容到文件末尾"},
+    {"type": "fs_copy", "params": {"src": str, "dst": str}, "required": ["src", "dst"], "dangerous": False,
+     "desc": "复制文件"},
+    {"type": "fs_move", "params": {"src": str, "dst": str}, "required": ["src", "dst"], "dangerous": False,
+     "desc": "移动/重命名文件"},
+    {"type": "fs_delete", "params": {"path": str}, "required": ["path"], "dangerous": True,
+     "desc": "删除文件（高危：不可逆）"},
+    {"type": "fs_list", "params": {"path": str}, "required": ["path"], "dangerous": False,
+     "desc": "列出目录中的文件"},
+    {"type": "fs_mkdir", "params": {"path": str}, "required": ["path"], "dangerous": False,
+     "desc": "创建目录"},
+    {"type": "fs_exists", "params": {"path": str}, "required": ["path"], "dangerous": False,
+     "desc": "检查文件/目录是否存在"},
+    {"type": "fs_info", "params": {"path": str}, "required": ["path"], "dangerous": False,
+     "desc": "获取文件/目录详细信息（大小、修改时间、类型）"},
 ]
 
 # 类型名 -> 定义 的索引
@@ -86,6 +123,21 @@ def _coerce(value: Any, expected: Any) -> Any:
         if isinstance(value, str):
             return value
         raise ActionValidationError(f"期望 str，得到 {type(value).__name__}")
+    if expected is bool:
+        if isinstance(value, bool):
+            return value
+        raise ActionValidationError(f"期望 bool，得到 {type(value).__name__}")
+    if expected is list:
+        if isinstance(value, list):
+            return value
+        # 容错：str 变单元素列表
+        if isinstance(value, str):
+            return [value]
+        raise ActionValidationError(f"期望 list，得到 {type(value).__name__}")
+    if expected is dict:
+        if isinstance(value, dict):
+            return value
+        raise ActionValidationError(f"期望 dict，得到 {type(value).__name__}")
     # 允许多类型（如 seconds: (int, float)）
     if isinstance(expected, tuple):
         for t in expected:
@@ -144,6 +196,12 @@ def _json_type(py_type: Any) -> str:
         return "number"
     if py_type is str:
         return "string"
+    if py_type is bool:
+        return "boolean"
+    if py_type is list:
+        return "array"
+    if py_type is dict:
+        return "object"
     if isinstance(py_type, tuple):
         # 多类型取第一个作为主类型（int/float 场景）
         return _json_type(py_type[0])

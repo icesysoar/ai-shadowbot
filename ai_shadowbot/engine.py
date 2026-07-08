@@ -512,6 +512,21 @@ class Engine:
             exec_result = self._execute_browser_action(
                 action_type, resolved_params, dry_run,
             )
+        # 4b. Excel 动作走 excel_worker（F016）
+        elif action_type.startswith("excel_"):
+            exec_result = self._execute_excel_action(
+                action_type, resolved_params, dry_run,
+            )
+        # 4c. HTTP 动作走 http_worker（F017）
+        elif action_type.startswith("http_"):
+            exec_result = self._execute_http_action(
+                action_type, resolved_params, dry_run,
+            )
+        # 4d. 文件系统动作走 filesystem_worker（F019）
+        elif action_type.startswith("fs_"):
+            exec_result = self._execute_filesystem_action(
+                action_type, resolved_params, dry_run,
+            )
         else:
             # 委托 Executor 执行
             try:
@@ -646,6 +661,307 @@ class Engine:
                     performed=False,
                     blocked=False,
                     reason=f"浏览器动作执行失败",
+                    error=result.get("error", "未知错误"),
+                    summary=f"[错误] {action_type} —— {result.get('error', '未知错误')}",
+                )
+        except Exception as e:
+            return ExecResult(
+                action=Action(type=action_type, params=resolved_params),
+                performed=False,
+                blocked=False,
+                reason=f"执行出错：{e}",
+                error=str(e),
+                summary=f"[错误] {action_type} —— {e}",
+            )
+
+    def _execute_excel_action(
+        self,
+        action_type: str,
+        resolved_params: dict,
+        dry_run: bool,
+    ) -> Any:
+        """执行 Excel/CSV 动作（F016）—— lazy import excel_worker。
+
+        Args:
+            action_type: excel_read / excel_write
+            resolved_params: 解析后的参数字典
+            dry_run: 是否为演练模式
+
+        Returns:
+            ExecResult 兼容对象
+        """
+        from ai_shadowbot.executor import ExecResult
+
+        # dry_run 模式下不真读写文件
+        if dry_run:
+            return ExecResult(
+                action=Action(type=action_type, params=resolved_params),
+                performed=False,
+                blocked=False,
+                reason="dry_run 模式未真实执行 Excel/CSV 动作",
+                summary=f"[dry_run] 将执行 Excel/CSV 动作 {action_type}",
+            )
+
+        try:
+            from ai_shadowbot.excel_worker import ExcelWorker
+            worker = ExcelWorker()
+        except ImportError as e:
+            return ExecResult(
+                action=Action(type=action_type, params=resolved_params),
+                performed=False,
+                blocked=True,
+                reason=f"excel_worker 不可用：{e}",
+                error=str(e),
+                summary=f"[错误] excel_worker 导入失败 —— {e}",
+            )
+
+        _MAP = {
+            "excel_read": lambda: worker.read_csv(
+                path=resolved_params.get("path", ""),
+                delimiter=resolved_params.get("delimiter", ","),
+                has_header=resolved_params.get("has_header", True),
+            ),
+            "excel_write": lambda: worker.write_csv(
+                path=resolved_params.get("path", ""),
+                headers=resolved_params.get("headers", []),
+                rows=resolved_params.get("rows", []),
+            ),
+        }
+
+        handler = _MAP.get(action_type)
+        if handler is None:
+            return ExecResult(
+                action=Action(type=action_type, params=resolved_params),
+                performed=False,
+                blocked=True,
+                reason=f"未知 Excel 动作：{action_type}",
+                summary=f"[错误] 未知 Excel 动作 {action_type}",
+            )
+
+        try:
+            result = handler()
+            if result.get("success"):
+                return ExecResult(
+                    action=Action(type=action_type, params=resolved_params),
+                    performed=True,
+                    blocked=False,
+                    summary=f"[执行] Excel 动作 {action_type} 完成",
+                )
+            else:
+                return ExecResult(
+                    action=Action(type=action_type, params=resolved_params),
+                    performed=False,
+                    blocked=False,
+                    reason="Excel 动作执行失败",
+                    error=result.get("error", "未知错误"),
+                    summary=f"[错误] {action_type} —— {result.get('error', '未知错误')}",
+                )
+        except Exception as e:
+            return ExecResult(
+                action=Action(type=action_type, params=resolved_params),
+                performed=False,
+                blocked=False,
+                reason=f"执行出错：{e}",
+                error=str(e),
+                summary=f"[错误] {action_type} —— {e}",
+            )
+
+    def _execute_http_action(
+        self,
+        action_type: str,
+        resolved_params: dict,
+        dry_run: bool,
+    ) -> Any:
+        """执行 HTTP 动作（F017）—— lazy import http_worker。
+
+        Args:
+            action_type: http_request / http_get / http_post / http_put / http_delete
+            resolved_params: 解析后的参数字典
+            dry_run: 是否为演练模式
+
+        Returns:
+            ExecResult 兼容对象
+        """
+        from ai_shadowbot.executor import ExecResult
+
+        # dry_run 模式下不真发 HTTP 请求
+        if dry_run:
+            return ExecResult(
+                action=Action(type=action_type, params=resolved_params),
+                performed=False,
+                blocked=False,
+                reason="dry_run 模式未真实执行 HTTP 请求",
+                summary=f"[dry_run] 将执行 HTTP 动作 {action_type}",
+            )
+
+        try:
+            from ai_shadowbot.http_worker import HttpWorker
+            worker = HttpWorker()
+        except ImportError as e:
+            return ExecResult(
+                action=Action(type=action_type, params=resolved_params),
+                performed=False,
+                blocked=True,
+                reason=f"http_worker 不可用：{e}",
+                error=str(e),
+                summary=f"[错误] http_worker 导入失败 —— {e}",
+            )
+
+        url = resolved_params.get("url", "")
+        headers = resolved_params.get("headers", None)
+        body = resolved_params.get("body", None)
+        method = resolved_params.get("method", "GET")
+        timeout = int(resolved_params.get("timeout", 30))
+
+        _MAP = {
+            "http_request": lambda: worker.request(
+                method=method,
+                url=url,
+                headers=headers,
+                body=body,
+                timeout=timeout,
+            ),
+            "http_get": lambda: worker.get(url=url, headers=headers),
+            "http_post": lambda: worker.post(
+                url=url, body=body, headers=headers,
+            ),
+            "http_put": lambda: worker.put(
+                url=url, body=body, headers=headers,
+            ),
+            "http_delete": lambda: worker.delete(url=url, headers=headers),
+        }
+
+        handler = _MAP.get(action_type)
+        if handler is None:
+            return ExecResult(
+                action=Action(type=action_type, params=resolved_params),
+                performed=False,
+                blocked=True,
+                reason=f"未知 HTTP 动作：{action_type}",
+                summary=f"[错误] 未知 HTTP 动作 {action_type}",
+            )
+
+        try:
+            result = handler()
+            if result.get("success"):
+                return ExecResult(
+                    action=Action(type=action_type, params=resolved_params),
+                    performed=True,
+                    blocked=False,
+                    summary=f"[执行] HTTP 动作 {action_type} 完成",
+                )
+            else:
+                return ExecResult(
+                    action=Action(type=action_type, params=resolved_params),
+                    performed=False,
+                    blocked=False,
+                    reason="HTTP 请求失败",
+                    error=result.get("error", "未知错误"),
+                    summary=f"[错误] {action_type} —— {result.get('error', '未知错误')}",
+                )
+        except Exception as e:
+            return ExecResult(
+                action=Action(type=action_type, params=resolved_params),
+                performed=False,
+                blocked=False,
+                reason=f"执行出错：{e}",
+                error=str(e),
+                summary=f"[错误] {action_type} —— {e}",
+            )
+
+    def _execute_filesystem_action(
+        self,
+        action_type: str,
+        resolved_params: dict,
+        dry_run: bool,
+    ) -> Any:
+        """执行文件系统动作（F019）—— lazy import filesystem_worker。
+
+        Args:
+            action_type: fs_read / fs_write / fs_delete / fs_list / fs_exists / ...
+            resolved_params: 解析后的参数字典
+            dry_run: 是否为演练模式
+
+        Returns:
+            ExecResult 兼容对象
+        """
+        from ai_shadowbot.executor import ExecResult
+
+        # dry_run 模式下不真操作文件
+        if dry_run:
+            return ExecResult(
+                action=Action(type=action_type, params=resolved_params),
+                performed=False,
+                blocked=False,
+                reason="dry_run 模式未真实执行文件系统动作",
+                summary=f"[dry_run] 将执行文件系统动作 {action_type}",
+            )
+
+        try:
+            from ai_shadowbot.filesystem_worker import FilesystemWorker
+            worker = FilesystemWorker()
+        except ImportError as e:
+            return ExecResult(
+                action=Action(type=action_type, params=resolved_params),
+                performed=False,
+                blocked=True,
+                reason=f"filesystem_worker 不可用：{e}",
+                error=str(e),
+                summary=f"[错误] filesystem_worker 导入失败 —— {e}",
+            )
+
+        path = resolved_params.get("path", "")
+        content = resolved_params.get("content", "")
+        encoding = resolved_params.get("encoding", "utf-8")
+
+        _MAP = {
+            "fs_read": lambda: worker.read_file(path=path, encoding=encoding),
+            "fs_write": lambda: worker.write_file(
+                path=path, content=content, encoding=encoding,
+            ),
+            "fs_append": lambda: worker.append_file(
+                path=path, content=content,
+            ),
+            "fs_copy": lambda: worker.copy_file(
+                src=resolved_params.get("src", ""),
+                dst=resolved_params.get("dst", ""),
+            ),
+            "fs_move": lambda: worker.move_file(
+                src=resolved_params.get("src", ""),
+                dst=resolved_params.get("dst", ""),
+            ),
+            "fs_delete": lambda: worker.delete_file(path=path),
+            "fs_list": lambda: worker.list_dir(path=path),
+            "fs_mkdir": lambda: worker.mkdir(path=path),
+            "fs_exists": lambda: worker.exists(path=path),
+            "fs_info": lambda: worker.get_info(path=path),
+        }
+
+        handler = _MAP.get(action_type)
+        if handler is None:
+            return ExecResult(
+                action=Action(type=action_type, params=resolved_params),
+                performed=False,
+                blocked=True,
+                reason=f"未知文件系统动作：{action_type}",
+                summary=f"[错误] 未知文件系统动作 {action_type}",
+            )
+
+        try:
+            result = handler()
+            if result.get("success"):
+                return ExecResult(
+                    action=Action(type=action_type, params=resolved_params),
+                    performed=True,
+                    blocked=False,
+                    summary=f"[执行] 文件系统动作 {action_type} 完成",
+                )
+            else:
+                return ExecResult(
+                    action=Action(type=action_type, params=resolved_params),
+                    performed=False,
+                    blocked=False,
+                    reason="文件系统动作执行失败",
                     error=result.get("error", "未知错误"),
                     summary=f"[错误] {action_type} —— {result.get('error', '未知错误')}",
                 )

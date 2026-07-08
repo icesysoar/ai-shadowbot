@@ -21,6 +21,13 @@ from ai_shadowbot.planner import Planner, MockLLMClient, PlanResult
 ALL_ACTION_NAMES = {
     "click", "double_click", "right_click", "type_text", "key_press",
     "screenshot", "wait", "open_app", "scroll",
+    # F016: Excel/CSV
+    "excel_read", "excel_write",
+    # F017: HTTP
+    "http_request", "http_get", "http_post", "http_put", "http_delete",
+    # F019: 文件系统
+    "fs_read", "fs_write", "fs_append", "fs_copy", "fs_move",
+    "fs_delete", "fs_list", "fs_mkdir", "fs_exists", "fs_info",
 }
 
 

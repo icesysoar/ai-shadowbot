@@ -102,7 +102,10 @@ COMPILE_SYSTEM_PROMPT = (
     "你是一个 AI 工作流编译器。请将用户的自然语言需求编译为一个结构化工作流 DAG。\n"
     "工作流由节点组成，节点类型包括：start(开始), end(结束), atomic(原子动作: click/double_click/"
     "right_click/type_text/key_press/screenshot/wait/open_app/scroll/"
-    "browser_navigate/browser_click/browser_type/browser_screenshot/browser_wait/browser_scroll/browser_extract_text), "
+    "browser_navigate/browser_click/browser_type/browser_screenshot/browser_wait/browser_scroll/browser_extract_text/"
+    "excel_read/excel_write/"
+    "http_request/http_get/http_post/http_put/http_delete/"
+    "fs_read/fs_write/fs_append/fs_copy/fs_move/fs_delete/fs_list/fs_mkdir/fs_exists/fs_info), "
     "condition(条件判断, 包含 branches 分支), loop(循环), wait(等待)。\n"
     "必须包含 start 和 end 节点，节点 ID 格式 n1/n2/...，严格按顺序排列。\n"
     "atomic 节点的 params.atomic_action 必须指定具体动作类型。\n"
@@ -227,8 +230,143 @@ def _detect_actions_from_query(query: str) -> List[Dict[str, Any]]:
         })
         browser_detected = True
 
+    # ---- Excel/CSV 关键词检测（F016） ----
+    excel_detected = False
+    if re.search(r"读取.*excel|读取.*csv|打开.*excel|读取.*表格", q):
+        actions.append({
+            "id": "n2",
+            "type": "atomic",
+            "params": {"atomic_action": "excel_read", "path": ""},
+            "label": "读取 Excel/CSV",
+            "next": "n3",
+        })
+        excel_detected = True
+
+    if re.search(r"写入.*excel|保存.*csv|导出.*excel|导出.*csv|写入.*csv", q):
+        actions.append({
+            "id": "n2",
+            "type": "atomic",
+            "params": {"atomic_action": "excel_write", "path": "", "headers": [], "rows": []},
+            "label": "写入 Excel/CSV",
+            "next": "n3",
+        })
+        excel_detected = True
+
+    if re.search(r"合并.*csv|合并.*表格", q):
+        actions.append({
+            "id": "n2",
+            "type": "atomic",
+            "params": {"atomic_action": "excel_read", "path": ""},
+            "label": "合并 CSV",
+            "next": "n3",
+        })
+        excel_detected = True
+
+    if re.search(r"筛选.*行|过滤.*数据|筛选.*csv", q):
+        actions.append({
+            "id": "n2",
+            "type": "atomic",
+            "params": {"atomic_action": "excel_read", "path": "", "column": "", "value": ""},
+            "label": "筛选行",
+            "next": "n3",
+        })
+        excel_detected = True
+
+    # ---- HTTP 关键词检测（F017） ----
+    http_detected = False
+    if re.search(r"发送.*请求|调用.*api|http.*请求|post.*请求|get.*请求|请求.*接口", q):
+        url_match = re.search(
+            r"(?:https?://[^\s，,。]+)",
+            q,
+        )
+        url = url_match.group(0) if url_match else ""
+        actions.append({
+            "id": "n2",
+            "type": "atomic",
+            "params": {"atomic_action": "http_request", "method": "GET", "url": url},
+            "label": f"HTTP 请求 {url}",
+            "next": "n3",
+        })
+        http_detected = True
+
+    if re.search(r"获取.*数据|获取.*接口|抓取|爬取", q) and not excel_detected:
+        actions.append({
+            "id": "n2",
+            "type": "atomic",
+            "params": {"atomic_action": "http_get", "url": ""},
+            "label": "HTTP GET",
+            "next": "n3",
+        })
+        http_detected = True
+
+    # ---- 文件系统关键词检测（F019） ----
+    fs_detected = False
+    if re.search(r"读取.*文件|读.*文件|查看.*文件内容", q):
+        actions.append({
+            "id": "n2",
+            "type": "atomic",
+            "params": {"atomic_action": "fs_read", "path": ""},
+            "label": "读取文件",
+            "next": "n3",
+        })
+        fs_detected = True
+
+    if re.search(r"写入.*文件|保存.*到文件|写.*文件", q):
+        actions.append({
+            "id": "n2",
+            "type": "atomic",
+            "params": {"atomic_action": "fs_write", "path": "", "content": ""},
+            "label": "写入文件",
+            "next": "n3",
+        })
+        fs_detected = True
+
+    if re.search(r"删除.*文件|删除.*目录|移除.*文件", q):
+        actions.append({
+            "id": "n2",
+            "type": "atomic",
+            "params": {"atomic_action": "fs_delete", "path": ""},
+            "label": "删除文件",
+            "next": "n3",
+        })
+        fs_detected = True
+
+    if re.search(r"列出.*目录|列出.*文件|查看.*目录|显示.*文件列表", q):
+        actions.append({
+            "id": "n2",
+            "type": "atomic",
+            "params": {"atomic_action": "fs_list", "path": ""},
+            "label": "列出目录",
+            "next": "n3",
+        })
+        fs_detected = True
+
+    if re.search(r"创建.*目录|新建.*文件夹|mkdir", q):
+        actions.append({
+            "id": "n2",
+            "type": "atomic",
+            "params": {"atomic_action": "fs_mkdir", "path": ""},
+            "label": "创建目录",
+            "next": "n3",
+        })
+        fs_detected = True
+
+    if re.search(r"移动.*文件|重命名.*文件|复制.*文件", q):
+        actions.append({
+            "id": "n2",
+            "type": "atomic",
+            "params": {"atomic_action": "fs_copy", "src": "", "dst": ""},
+            "label": "文件操作",
+            "next": "n3",
+        })
+        fs_detected = True
+
     # 如果已检测到浏览器动作，不再走原有关键词匹配
     if browser_detected:
+        return actions
+
+    # 如果已检测到 Excel/HTTP/FS 动作，不再走原有关键词匹配
+    if excel_detected or http_detected or fs_detected:
         return actions
 
     # 检测关键词并构建对应动作

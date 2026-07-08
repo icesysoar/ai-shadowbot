@@ -282,7 +282,8 @@ class Guardrails:
 
         # 3) 破坏性命令黑名单（命令归一化 + 关键字集合，P1-1 修正：抗绕过）
         #    仅对非注入文本生效；命中即硬拦截（BLOCK，R2 纵深，不被削弱）。
-        if _scan_destructive(text):
+        #    豁免：http_* 动作（HTTP DELETE/PUT 等方法不应被 shell 黑名单拦截）。
+        if not action.type.startswith("http_") and _scan_destructive(text):
             return GuardResult(
                 BLOCK,
                 "命中破坏性命令黑名单（命令归一化判定），已硬拦截",
@@ -357,6 +358,8 @@ class Guardrails:
                               "确认目标进程；必要时重新启动", False),
             "system_shutdown": ("system_shutdown", "系统关机/重启，进行中任务中断",
                                "保存工作后重新开机", False),
+            "fs_delete":     ("fs_delete", "文件/目录将被永久删除，不可逆",
+                              "确认已备份重要数据；此操作不可撤销", True),
         }
         if action.type in semantic_map:
             cat, cons, roll, irr = semantic_map[action.type]
@@ -438,6 +441,38 @@ class Guardrails:
             return head + f"打开应用：{p.get('name')}"
         if action.type == "scroll":
             return head + f"滚动 (dx={p.get('dx')}, dy={p.get('dy')})"
+        # ---- Excel/CSV (F016) ----
+        if action.type == "excel_read":
+            return head + f"读取 Excel/CSV: {p.get('path', '')}"
+        if action.type == "excel_write":
+            return head + f"写入 Excel/CSV: {p.get('path', '')}"
+        # ---- HTTP (F017) ----
+        if action.type == "http_request":
+            return head + f"HTTP {p.get('method', 'GET')} {p.get('url', '')}"
+        if action.type in ("http_get", "http_post", "http_put", "http_delete"):
+            methods = {"http_get": "GET", "http_post": "POST", "http_put": "PUT", "http_delete": "DELETE"}
+            return head + f"HTTP {methods.get(action.type, '')} {p.get('url', '')}"
+        # ---- 文件系统 (F019) ----
+        if action.type == "fs_read":
+            return head + f"读取文件: {p.get('path', '')}"
+        if action.type == "fs_write":
+            return head + f"写入文件: {p.get('path', '')}"
+        if action.type == "fs_append":
+            return head + f"追加到文件: {p.get('path', '')}"
+        if action.type == "fs_copy":
+            return head + f"复制文件: {p.get('src', '')} → {p.get('dst', '')}"
+        if action.type == "fs_move":
+            return head + f"移动文件: {p.get('src', '')} → {p.get('dst', '')}"
+        if action.type == "fs_delete":
+            return head + f"删除文件/目录: {p.get('path', '')} ⚠️"
+        if action.type == "fs_list":
+            return head + f"列出目录: {p.get('path', '')}"
+        if action.type == "fs_mkdir":
+            return head + f"创建目录: {p.get('path', '')}"
+        if action.type == "fs_exists":
+            return head + f"检查是否存在: {p.get('path', '')}"
+        if action.type == "fs_info":
+            return head + f"获取信息: {p.get('path', '')}"
         return head + f"动作 {action.type}({p})"
 
     # -- 内部：把动作参数拼成待扫描文本 -----------------------------------

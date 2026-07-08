@@ -215,6 +215,19 @@
         { "id": "F014.1", "title": "端口口径统一 8792", "status": "planned", "claimed_by": "" },
         { "id": "F014.2", "title": "--mode both 端口冲突修复", "status": "planned", "claimed_by": "" }
       ]
+    },
+    {
+      "id": "F023",
+      "title": "画布撤销/重做 + 快捷键",
+      "status": "done",
+      "claimed_by": "lin-zhiyu",
+      "tasks": [
+        { "id": "F023.1", "title": "undoStack/redoStack 快照栈 (MAX_STACK=50)", "status": "done", "claimed_by": "lin-zhiyu" },
+        { "id": "F023.2", "title": "graph.serialize()/configure() 快照保存与恢复", "status": "done", "claimed_by": "lin-zhiyu" },
+        { "id": "F023.3", "title": "pushSnapshot 接入 addNode/clear/loadFlow/updateNode", "status": "done", "claimed_by": "lin-zhiyu" },
+        { "id": "F023.4", "title": "Ctrl+Z/Y/Shift+Z / Cmd+Z/Shift+Z 快捷键绑定", "status": "done", "claimed_by": "lin-zhiyu" },
+        { "id": "F023.5", "title": "expose undo/redo 方法 + DPR 恢复 + npm build", "status": "done", "claimed_by": "lin-zhiyu" }
+      ]
     }
   ]
 }
