@@ -294,8 +294,8 @@
       "id": "F012",
       "title": "可视化画布增强（Vue3+LiteGraph MVP 收口）",
       "description": "基于已迁移的 Vue 3 + @comfyorg/litegraph 画布（src/GraphCanvas.vue，status done 但 MVP 级），补齐生产级交互：①节点拖拽放置（调色板拖到画布落点创建，当前仅点击添加）②调度面板前端化（对接已存在的 /api/scheduler/*）③日志面板前端化（对接 /api/execution/{id}/detail|nodes|screenshot）④模板面板前端化（对接 /api/templates*）⑤属性面板 combo 候选值从后端 /api/palette 动态拉取 ⑥DPR 精细优化（高 DPI 清晰度与坐标缩放）。全部 additive，不破坏 F008 后端 canvas_api.py。",
-      "status": "planned",
-      "claimed_by": "",
+      "status": "in_progress",
+      "claimed_by": "lin-zhiyu",
       "depends_on": [
         "F008"
       ],

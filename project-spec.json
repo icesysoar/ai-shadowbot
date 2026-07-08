@@ -175,6 +175,11 @@
       "who": "sulin-yuan",
       "when": "2026-07-08",
       "what": "Phase A 工程卫生治理完成：F013.1-5 全子任务落实 (task.json验证/临时文件清理/git init+首提交/旧画布清理/README刷新)；F014.1 端口口径已验证(代码中已用8792)；F014.2 mode both 使用独立MCP_PORT=8794；F013/F014 状态→done。git 首提交 185 文件。"
+    },
+    {
+      "who": "sulin-yuan",
+      "when": "2026-07-08",
+      "what": "F012→in_progress, claimed_by=lin-zhiyu; 派发6子任务(拖拽放置/调度面板/日志面板/模板面板/palette对接/DPR优化)"
     }
   ],
   "consensus_review": {
