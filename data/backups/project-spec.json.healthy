@@ -2,7 +2,7 @@
   "meta": {
     "name": "AI 版影刀 / ai-shadowbot",
     "description": "自然语言→桌面动作规划的 RPA / Computer-Use agent。用户用聊天说要做什么，AI 编译为鼠标/键盘/截图/终端动作并自动执行。",
-    "version": "0.1.1",
+    "version": "0.2.0",
     "created_by": "ye-zhiqiu",
     "created_at": "2026-07-06",
     "updated_by": "sulin-yuan",
@@ -12,7 +12,8 @@
       "execution_backend": "PyAutoGUI + pygetwindow (参考 computer-agent 感知-动作闭环)",
       "perception": "截图感知（F002）；M2 增强 Open-Interface 式『无障碍树 + 截图』混合观测（pywinauto / UI Automation）",
       "llm": "可配置 LLM provider (function calling)，如 OpenAI / Claude / 通义千问；支持私有化/本地 BASE_URL",
-      "interface": "CLI / 聊天入口"
+      "interface": "CLI / 聊天入口",
+      "frontend": "Vue3+LiteGraph.js (20节点, 6分类)"
     }
   },
   "milestones": {
@@ -210,6 +211,16 @@
       "who": "sulin-yuan",
       "when": "2026-07-08",
       "what": "Phase D启动: F016(Excel)+F017(HTTP)+F019(文件系统)→lu-qianji; F023(撤销重做)→lin-zhiyu"
+    },
+    {
+      "who": "lu-qianji",
+      "when": "2026-07-08",
+      "what": "Phase D完成: F016 Excel(12tests)+F017 HTTP(15tests)+F019 Filesystem(29tests)。3个新worker模块+engine分流+compiler关键词+canvas调色板(Excel/网络/文件3分类)+guardrails(fs_delete→CONFIRM)。468/468全绿。"
+    },
+    {
+      "who": "lin-zhiyu",
+      "when": "2026-07-08",
+      "what": "F023 画布撤销/重做: Ctrl+Z/Y快捷键+快照栈(MAX50)+5处pushSnapshot+DPR恢复。npm build通过。"
     }
   ],
   "consensus_review": {

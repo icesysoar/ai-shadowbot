@@ -2,8 +2,8 @@
   "_source": ".autocode/wiki/tasks/*.md",
   "_note": "自动从 Wiki 重建，请编辑 wiki/tasks/*.md",
   "project": "自动系统",
-  "total_tasks": 19,
-  "completed": 19,
+  "total_tasks": 17,
+  "completed": 11,
   "updated_at": "2026-07-08 23:20",
   "tasks": [
     {
@@ -169,9 +169,9 @@
       "id": "T-F012",
       "title": "可视化画布增强（Vue3+LiteGraph MVP 收口）",
       "feature_id": "F012",
-      "status": "done",
+      "status": "planned",
       "priority": "P0",
-      "claimed_by": "lin-zhiyu",
+      "claimed_by": "",
       "passes": false,
       "validation_type": "manual",
       "depends_on": [
@@ -183,9 +183,9 @@
       "id": "T-F013",
       "title": "工程卫生与治理（task.json 刷新 / 临时文件清理 / git 初始化 / 规格一致性）",
       "feature_id": "F013",
-      "status": "done",
+      "status": "planned",
       "priority": "P1",
-      "claimed_by": "sulin-yuan",
+      "claimed_by": "",
       "passes": false,
       "validation_type": "manual",
       "depends_on": [],
@@ -195,9 +195,9 @@
       "id": "T-F014",
       "title": "启动器与 L5 网关健壮性（端口统一 + --mode both 修复）",
       "feature_id": "F014",
-      "status": "done",
+      "status": "planned",
       "priority": "P0",
-      "claimed_by": "sulin-yuan",
+      "claimed_by": "",
       "passes": false,
       "validation_type": "manual",
       "depends_on": [
@@ -206,72 +206,40 @@
       "completed_at": ""
     },
     {
-      "id": "T-F015",
-      "title": "浏览器自动化节点",
-      "feature_id": "F015",
-      "status": "done",
-      "priority": "P0",
-      "claimed_by": "lu-qianji",
-      "passes": false,
-      "depends_on": [
-        "F002",
-        "F006"
-      ],
-      "completed_at": ""
-    },
-    {
-      "id": "T-F016",
-      "title": "Excel/CSV操作节点",
-      "feature_id": "F016",
-      "status": "done",
-      "priority": "P1",
-      "claimed_by": "lu-qianji",
-      "passes": false,
-      "depends_on": [
-        "F002",
-        "F006"
-      ],
-      "completed_at": ""
-    },
-    {
-      "id": "T-F017",
-      "title": "HTTP/API请求节点",
-      "feature_id": "F017",
-      "status": "done",
-      "priority": "P1",
-      "claimed_by": "lu-qianji",
-      "passes": false,
-      "depends_on": [
-        "F002",
-        "F006"
-      ],
-      "completed_at": ""
-    },
-    {
-      "id": "T-F019",
-      "title": "文件系统操作节点",
-      "feature_id": "F019",
-      "status": "done",
-      "priority": "P1",
-      "claimed_by": "lu-qianji",
-      "passes": false,
-      "depends_on": [
-        "F002",
-        "F006"
-      ],
-      "completed_at": ""
-    },
-    {
-      "id": "T-F023",
-      "title": "画布撤销/重做",
-      "feature_id": "F023",
-      "status": "done",
+      "id": "T-F020",
+      "title": "变量管理面板",
+      "feature_id": "F020",
+      "status": "in_progress",
       "priority": "P2",
       "claimed_by": "lin-zhiyu",
-      "passes": false,
       "depends_on": [
         "F008",
         "F012"
+      ],
+      "completed_at": ""
+    },
+    {
+      "id": "T-F021",
+      "title": "流程导入/导出",
+      "feature_id": "F021",
+      "status": "in_progress",
+      "priority": "P1",
+      "claimed_by": "lin-zhiyu",
+      "depends_on": [
+        "F008"
+      ],
+      "completed_at": ""
+    },
+    {
+      "id": "T-F024",
+      "title": "执行报告面板",
+      "feature_id": "F024",
+      "status": "in_progress",
+      "priority": "P2",
+      "claimed_by": "lin-zhiyu",
+      "depends_on": [
+        "F010",
+        "F008"
       ],
       "completed_at": ""
     }
