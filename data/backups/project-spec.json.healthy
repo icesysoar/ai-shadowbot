@@ -190,6 +190,11 @@
       "who": "lin-zhiyu",
       "when": "2026-07-08",
       "what": "F012 画布增强 6 项子任务全部完成: 拖拽放置/调度面板/日志面板/模板面板/palette combo对接/DPR优化。新增 3 组件(SchedulerPanel/LogPanel/TemplatePanel)，重写 App.vue(tab系统)/GraphCanvas(drop+DPR)/api-service.ts。npm run build 32 modules 通过。"
+    },
+    {
+      "who": "sulin-yuan",
+      "when": "2026-07-08",
+      "what": "Phase C 启动: F015 浏览器自动化节点。集成 Soara_browser Bridge(port 16789) → 6 种浏览器操作(navigate/click/type/screenshot/wait/scroll)。并行派发 lu-qianji(browser_worker+引擎+编译) + lin-zhiyu(前端节点)"
     }
   ],
   "consensus_review": {
