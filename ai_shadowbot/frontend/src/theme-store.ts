@@ -7,6 +7,7 @@ export const CATEGORY_COLORS: Record<string, string> = {
   键盘: '#a371f7',
   应用: '#3fb950',
   系统: '#8b949e',
+  浏览器: '#6C5CE7',
 }
 
 export function categoryColor(category: string): string {

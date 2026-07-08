@@ -38,6 +38,13 @@ export const NODE_SPECS: NodeSpec[] = [
   { kind: 'screenshot', category: '系统', label: '截图', node_type: 'atomic', inputs: [''], outputs: [''], widgets: [] },
   { kind: 'condition', category: '控制', label: '条件判断', node_type: 'condition', inputs: [''], outputs: ['true', 'false'], widgets: [{ name: 'expression', type: 'text', default: '' }] },
   { kind: 'loop', category: '控制', label: '循环', node_type: 'loop', inputs: [''], outputs: [''], widgets: [{ name: 'loop_type', type: 'combo', default: 0, options: ['while', 'for', 'foreach'] }, { name: 'condition', type: 'text', default: '' }, { name: 'max_iterations', type: 'number', default: 100 }] },
+  // === 浏览器节点 ===
+  { kind: 'browser_navigate', category: '浏览器', label: '打开网页', node_type: 'atomic', inputs: [''], outputs: [''], widgets: [{ name: 'url', type: 'text', default: '' }] },
+  { kind: 'browser_click', category: '浏览器', label: '点击元素', node_type: 'atomic', inputs: [''], outputs: [''], widgets: [{ name: 'x', type: 'number', default: 0 }, { name: 'y', type: 'number', default: 0 }] },
+  { kind: 'browser_type', category: '浏览器', label: '输入文本', node_type: 'atomic', inputs: [''], outputs: [''], widgets: [{ name: 'text', type: 'text', default: '' }] },
+  { kind: 'browser_screenshot', category: '浏览器', label: '网页截图', node_type: 'atomic', inputs: [''], outputs: [''], widgets: [] },
+  { kind: 'browser_wait', category: '浏览器', label: '等待', node_type: 'atomic', inputs: [''], outputs: [''], widgets: [{ name: 'seconds', type: 'number', default: 1.0 }] },
+  { kind: 'browser_scroll', category: '浏览器', label: '滚动页面', node_type: 'atomic', inputs: [''], outputs: [''], widgets: [{ name: 'dx', type: 'number', default: 0 }, { name: 'dy', type: 'number', default: 0 }] },
 ]
 
 export const SPEC_BY_KIND: Record<string, NodeSpec> = Object.fromEntries(
