@@ -1,0 +1,25 @@
+{
+  "id": "F008",
+  "status": "done",
+  "claimed_by": "lu-qianji",
+  "title": "可视化画布 Phase 2（拖拽编辑 + AI 辅助搭建 + 一键执行）",
+  "description": "在 Phase 1（CLI 工作流引擎）之上，提供可视化 Web 画布。后端 canvas_api.py（CRUD/转换/校验/调色板/调度/日志/模板路由，SQLite 持久化）；前端已迁移至 Vue 3 + TypeScript + @comfyorg/litegraph（src/GraphCanvas.vue，MVP 级）。⚠️ 规格漂移校正 2026-07-08（B4 反例）：原描述写 React Flow+static/canvas.html 已过时——实际前端为 Vue3+LiteGraph，旧 static/reactflow.css|reactflow.umd.js|canvas.html 为残留待清理（见 F013）。MVP 画布缺：节点拖拽放置(当前点击添加)/调度·日志·模板面板/DPR 优化/属性面板 combo 候选值对接后端，统一收口见 F012。集成 l5_gateway.py 画布路由。",
+  "depends_on": [
+    "F006",
+    "F007"
+  ],
+  "acceptance_criteria": [
+    "AC1: 后端提供 CRUD API（/api/workflows，SQLite 持久化），Flow↔Workflow 双向转换正确",
+    "AC2: 前端单页 HTML 画布（React + React Flow CDN），支持拖拽/连接/编辑/删除节点",
+    "AC3: AI 编译端点 /api/compile-to-flow 生成画布可加载的 Flow JSON",
+    "AC4: 调色板端点 /api/palette 返回可用节点分类列表",
+    "AC5: Flow 校验端点 /api/flow/validate 正确检测非法 DAG",
+    "AC6: 执行端点 /api/workflows/{id}/execute 调用 Engine 并记录节点级执行结果",
+    "AC7: Canvas API 测试全绿（24+项），安全复测 34 PASS 无回归"
+  ],
+  "retry_count": 0,
+  "archive_note": "",
+  "_schema": "feature/v1",
+  "guide": {},
+  "updated_at": "2026-07-08 02:15:48"
+}

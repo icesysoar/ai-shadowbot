@@ -1,0 +1,26 @@
+{
+  "id": "F006",
+  "title": "工作流引擎 Phase 1（AI 编译 + DAG 执行）",
+  "description": "工作流 DAG 数据结构 + AI 编译器（自然语言→节点图）+ 执行引擎（状态机/条件/循环/变量/错误策略）。用户说需求→AI 自动编节点图→展示审查→确认执行。对现有 F001-F005 完全 additive。",
+  "status": "done",
+  "claimed_by": "lu-qianji",
+  "depends_on": [
+    "F001",
+    "F002",
+    "F004",
+    "F005"
+  ],
+  "acceptance_criteria": [
+    "AC1: 给定『每天9点查邮件整理Excel』类需求，编译器输出合法 Workflow DAG JSON（含 start/end/condition/open_app 节点）",
+    "AC2: 执行引擎能解释执行含条件分支的 DAG，atomic 节点委托 F002 executor，condition 节点正确评估分支",
+    "AC3: 变量系统支持 global 作用域，{{variables.xxx}} 在节点参数中正确替换",
+    "AC4: 错误策略 retry/skip/abort 正确生效；retry 耗尽后 fallback；loop 有上限 (≤1000) 防死循环",
+    "AC5: 所有 atomic 节点原样过 guardrails.check()，deny-unconfirmed 不削弱；dry_run 不真执行",
+    "AC6: CLI 入口 --compile / --run-workflow / --workflow-demo 三种模式均可工作"
+  ],
+  "retry_count": 0,
+  "archive_note": "",
+  "_schema": "feature/v1",
+  "guide": {},
+  "updated_at": "2026-07-08 02:15:48"
+}

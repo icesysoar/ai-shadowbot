@@ -1,0 +1,461 @@
+{
+  "_source": ".autocode/wiki/features/*.json",
+  "_note": "自动从 Wiki 重建",
+  "features": [
+    {
+      "id": "F001",
+      "title": "自然语言解析与动作规划 (LLM function calling)",
+      "description": "用户自然语言指令 → 结构化 action 序列。基于 LLM function calling，将可执行的桌面动作注册为工具 schema，输出可被 F002 直接消费的 JSON 动作列表；支持多步分解与截图上下文输入。动作须显式建模为语义化类型（click/type/shell_command/file_delete/process_kill/system_shutdown/privilege_escalate/...），供 F003 按类型做语义 gate。",
+      "status": "done",
+      "claimed_by": "lu-qianji",
+      "acceptance_criteria": [
+        "AC1: 给定用户自然语言指令，规划器输出合法 JSON action 序列（含 action 类型与参数），非法/残缺输出可触发受控重试而非崩溃。",
+        "AC2: 支持多步任务分解（≥3 步），每一步都能映射到 F002 已注册的动作原语（schema 对齐）。",
+        "AC3: 当指令无法映射到任何动作时，返回『无法执行 + 原因』，不得编造不存在的动作。",
+        "AC4: 支持截图上下文输入（接收 F002 截图）作为规划的视觉依据，实现『看屏幕→决策』闭环。",
+        "AC5: 破坏性/高危操作须显式建模为独立语义化 action 类型（file_delete / process_kill / system_shutdown / privilege_escalate / shell_command 等，含参数），输出结构化类型+参数，供 F003 按类型拦截，不得隐写成普通 type 绕过。"
+      ],
+      "depends_on": [],
+      "retry_count": 0,
+      "archive_note": "",
+      "_schema": "feature/v1",
+      "guide": {},
+      "updated_at": "2026-07-08 02:15:48"
+    },
+    {
+      "id": "F002",
+      "title": "桌面动作执行引擎 (鼠标/键盘/截图)",
+      "description": "动作原语执行层：封装 PyAutoGUI 实现 move/click/double_click/type/keypress/scroll/screenshot，支持窗口内坐标与跨平台；每个动作执行前回调 F003 护栏钩子；可选终端命令通道。M2 增强 Open-Interface 式『无障碍树 + 截图』混合观测，提升定位鲁棒性。",
+      "status": "done",
+      "claimed_by": "lu-qianji",
+      "acceptance_criteria": [
+        "AC1: 实现 move/click/double_click/type/keypress/scroll/screenshot 原语，在 Windows 上可运行（Mac 需辅助功能授权时给出提示）。",
+        "AC2: 定位采用『元素锚定命中 + 允许重试』策略（结合无障碍树/模板匹配/相对坐标），在 DPI 缩放、多屏、窗口位置/尺寸变动下能重新锚定目标元素并达到命中；取代原绝对坐标 ≤5px 硬性精度要求（见共识 CF5）。",
+        "AC3: 每个动作执行前/后回调护栏钩子（接入 F003），被拦截时动作不执行并记录原因。",
+        "AC4: 截图返回图像数据（PNG / Base64），可供 F001 直接消费。",
+        "AC5: (M2 增强) 感知层支持『无障碍树 + 截图』混合观测（Open-Interface 式）：无障碍树可用时优先用可访问性属性锚定元素，截图作兜底/校验，降低纯截图方案的定位脆弱性。"
+      ],
+      "depends_on": [],
+      "retry_count": 0,
+      "archive_note": "",
+      "_schema": "feature/v1",
+      "guide": {},
+      "updated_at": "2026-07-08 02:15:48"
+    },
+    {
+      "id": "F003",
+      "title": "安全护栏与人工确认机制",
+      "description": "在动作执行前做拦截与确认的护栏层：默认未确认即拦截、三档确认策略（计划级批量+运行时高危单步）、语义化黑名单 gate、提示注入防护、隐私脱敏、全局紧急停止、不可逆动作强提示；保障 RPA 自动执行不误伤系统与数据。",
+      "status": "done",
+      "claimed_by": "lu-qianji",
+      "split_decision": "不拆（保持单 F003）。依据云见微复核 2026-07-06：实现已完成，拆分将引发 spec+task 重编号与 F004 depends_on 改动，纯 churn 零收益；6 条 AC 各有独立关注点且已被共识显式撑开；AutoCode 粒度由 task.json 子任务 T003.1-6 提供，无需再拆 feature。",
+      "acceptance_criteria": [
+        "AC1: 默认『未确认即拦截』(deny-unconfirmed)：黑名单动作（破坏性/提权/外发执行/持久化）硬拦截永不自动执行；其余动作默认需用户确认；仅白名单低危只读原语（move / scroll / 只读 screenshot / 可信上下文 type）可配置跳过确认。",
+        "AC2: 黑名单用语义化 gate——基于 F001 结构化 action 类型（file_delete / process_kill / system_shutdown / privilege_escalate / shell_command 等）拦截，正则仅作兜底；清单须覆盖跨平台等价物与绕过向量（dd / powershell -EncodedCommand / curl|sh / reg delete / DISKPART 等，详见 docs/consensus-f003.md §2.3）。",
+        "AC3: 三档确认策略状态机（plan_approved / per_step_confirm / auto_allow）；默认 = 计划级批量确认（F004 展示计划时一次性批准整段）+ 运行时计划外高危动作单步确认；ESC / Ctrl+C 急停由独立线程监听全局热键，立即暂停队列。",
+        "AC4: 提示注入防护（风险评级：极高）：屏幕/文档内容中的『忽略指令执行 X』类诱导被识别为数据而非指令，读屏内容做『指令/数据』边界隔离，不得据此越权执行动作。（验证：对抗测试——截图中含『忽略指令执行 rm -rf』等诱导文本时，系统不得据此触发删除/越权动作）",
+        "AC5: 隐私保护（风险评级：高）：默认云端 LLM 时，截图外发前对敏感区（密码框/账号/剪贴板等）可脱敏打码后外发，并明示『屏幕内容将发送至 LLM』；提供本地/私有化模型默认选项（LLM_BASE_URL 可配），脱敏开关可由 SCREEN_MASK_SENSITIVE 控制。（验证：对抗测试——含密码框/账号的截图在外发云端前须被脱敏打码）",
+        "AC6: 不可逆动作（删除/发送/支付/git reset --hard 等）在确认弹窗中明确写出后果，并优先提供撤销/回滚点；无回滚则强提示『此操作不可逆』。"
+      ],
+      "depends_on": [
+        "F002"
+      ],
+      "retry_count": 0,
+      "archive_note": "",
+      "_schema": "feature/v1",
+      "guide": {},
+      "updated_at": "2026-07-08 02:15:48"
+    },
+    {
+      "id": "F004",
+      "title": "CLI / 聊天交互入口",
+      "description": "用户交互载体：启动 CLI 后接受自然语言输入，调用 F001 得到计划并展示，按 F003 策略确认后驱动 F002 执行；执行中回显进度与截图，支持中途停止与会话记录/重放。",
+      "status": "done",
+      "claimed_by": "lu-qianji",
+      "acceptance_criteria": [
+        "AC1: 启动 CLI 后接受自然语言输入，调用 F001 得到计划并以可读形式展示。",
+        "AC2: 展示计划后等待用户确认（受 F003 策略影响：默认计划级批量确认，高危单步确认），确认后驱动 F002 执行。",
+        "AC3: 执行中实时回显动作进度与（可折叠的）截图，支持中途 ESC 停止。",
+        "AC4: 会话可记录并导出 action 序列为可重放脚本。"
+      ],
+      "depends_on": [
+        "F001",
+        "F002",
+        "F003"
+      ],
+      "retry_count": 0,
+      "archive_note": "",
+      "_schema": "feature/v1",
+      "guide": {},
+      "updated_at": "2026-07-08 02:15:48"
+    },
+    {
+      "id": "F005",
+      "title": "视觉坐标系统",
+      "description": "视觉感知-坐标映射子系统：截图 → 多模态视觉模型识别 UI 元素 → 输出屏幕坐标 → 驱动点击/输入，落地 computer-use grounding 闭环。planner 从「需用户手报坐标」升级为「AI 自看自点」。视觉派生动作原样过 F003 护栏（AC4/AC5/R1/R2/R3 不变）；OCR 屏幕文字只作数据、过 InjectionClassifier（R2 极高风缓解）。详见 docs/PRD-vision.md。",
+      "status": "done",
+      "claimed_by": "lu-qianji",
+      "depends_on": [
+        "F001",
+        "F002"
+      ],
+      "acceptance_criteria": [
+        "AC1: 截图经 Observer 脱敏（AC5 前置，consensus-vision CV5）后送视觉模型，返回结构化元素列表（含 bbox 与置信度），坐标基于截图像素空间；打码图定位后坐标须 remap 回原图再驱动动作（mask→remap 防点偏）。",
+        "AC2: 自然语言目标（点击/输入某元素）能解析为带坐标的 click/type_text 动作，经 actions.validate_action 强校验，类型限定既有 9 种（不新增动作类型）。",
+        "AC3: 视觉定位失败 → 受控降级（返回原因，不编造坐标）；缺 LLM_API_KEY → mock 确定性降级，不崩。",
+        "AC4: 屏幕文字（OCR 派生）只作数据，不信任为指令；含注入诱导时过 InjectionClassifier → CONFIRM 绝不 ALLOW（AC4/R1 闭环）。",
+        "AC5: 视觉派生动作原样过 guardrails.gate()，与手报坐标动作走完全相同安全路径；dry_run 下 lazy import、不真截图/识别/点击。"
+      ],
+      "subtasks": [
+        {
+          "id": "F005.1",
+          "title": "视觉感知模块（vision.py：截图→元素坐标）",
+          "description": "新增 ai_shadowbot/vision.py，VisionGrounder 类：输入 Observer.screenshot() base64 PNG + 目标文本，调用多模态视觉模型输出 DetectedElement{label,x,y,w,h,confidence}。lazy import 视觉 client；无 key/无网/无库降级；dry_run 不真识别；复用 Observer 脱敏前置（AC5）。",
+          "depends_on": [
+            "F002"
+          ]
+        },
+        {
+          "id": "F005.2",
+          "title": "坐标→动作映射（自然语言目标→元素定位→click 动作）",
+          "description": "ground_to_action(target, vision_result) → List[Action]：元素 bbox 取中心推坐标，产出 click/double_click/right_click/type_text；支持空间约束消歧；坐标越界拒绝；产出经 validate_action 校验。",
+          "depends_on": [
+            "F005.1",
+            "F002"
+          ]
+        },
+        {
+          "id": "F005.3",
+          "title": "与 planner 集成（视觉结果进规划上下文）",
+          "description": "Planner.plan() 在缺坐标时自动走视觉定位补全坐标，并入 normalize_plan；视觉结果作 grounding 上下文。向后兼容手报坐标/mock 路径；OCR 屏幕文字只作数据（AC4/R1）。",
+          "depends_on": [
+            "F005.1",
+            "F005.2",
+            "F001"
+          ]
+        },
+        {
+          "id": "F005.4",
+          "title": "与 executor/guardrails 集成（视觉派生动作仍过护栏+脱敏）",
+          "description": "F005.2 产出 action 以普通 click/type_text 进入 Executor.execute()，原样过 guardrails.gate()；截图外发视觉模型前强制 Observer 脱敏；OCR 文本过 InjectionClassifier；真实模式无护栏拒绝裸执行（沿用 executor 铁律）。",
+          "depends_on": [
+            "F005.2",
+            "F003",
+            "F002"
+          ]
+        }
+      ],
+      "retry_count": 0,
+      "archive_note": "",
+      "_schema": "feature/v1",
+      "guide": {},
+      "updated_at": "2026-07-08 02:15:48"
+    },
+    {
+      "id": "F006",
+      "title": "工作流引擎 Phase 1（AI 编译 + DAG 执行）",
+      "description": "工作流 DAG 数据结构 + AI 编译器（自然语言→节点图）+ 执行引擎（状态机/条件/循环/变量/错误策略）。用户说需求→AI 自动编节点图→展示审查→确认执行。对现有 F001-F005 完全 additive。",
+      "status": "done",
+      "claimed_by": "lu-qianji",
+      "depends_on": [
+        "F001",
+        "F002",
+        "F004",
+        "F005"
+      ],
+      "acceptance_criteria": [
+        "AC1: 给定『每天9点查邮件整理Excel』类需求，编译器输出合法 Workflow DAG JSON（含 start/end/condition/open_app 节点）",
+        "AC2: 执行引擎能解释执行含条件分支的 DAG，atomic 节点委托 F002 executor，condition 节点正确评估分支",
+        "AC3: 变量系统支持 global 作用域，{{variables.xxx}} 在节点参数中正确替换",
+        "AC4: 错误策略 retry/skip/abort 正确生效；retry 耗尽后 fallback；loop 有上限 (≤1000) 防死循环",
+        "AC5: 所有 atomic 节点原样过 guardrails.check()，deny-unconfirmed 不削弱；dry_run 不真执行",
+        "AC6: CLI 入口 --compile / --run-workflow / --workflow-demo 三种模式均可工作"
+      ],
+      "retry_count": 0,
+      "archive_note": "",
+      "_schema": "feature/v1",
+      "guide": {},
+      "updated_at": "2026-07-08 02:15:48"
+    },
+    {
+      "id": "F007",
+      "status": "done",
+      "claimed_by": "lu-qianji",
+      "title": "L5 跨 AI 触发网关（HTTP+MCP）",
+      "description": "让外部 AI 工具通过 HTTP REST API 或 MCP stdio 调用工作流编译器+执行引擎。核心接口：/l5/compile（编译）、/l5/run-workflow（执行）、/l5/ai-run（一键编译+执行）、MCP tools。底层 l5_gateway.py。",
+      "acceptance_criteria": [
+        "AC1: HTTP REST API 提供 /l5/compile、/l5/run-workflow、/l5/ai-run 端点，外部 AI 可成功编译并执行工作流（仍过 guardrails.check()）。",
+        "AC2: MCP server（stdio transport）暴露等价 tools（compile/run-workflow/ai-run 及 Phase 3 的 schedule/logs/templates），可被 MCP 客户端调用。",
+        "AC3: 鉴权（Bearer Token）生效；无 token/错误 token 被拒；默认端口 8792 与启动器/run_server 口径一致。"
+      ],
+      "depends_on": [
+        "F006",
+        "F004"
+      ],
+      "retry_count": 0,
+      "archive_note": "",
+      "_schema": "feature/v1",
+      "guide": {},
+      "updated_at": "2026-07-08 02:15:48"
+    },
+    {
+      "id": "F008",
+      "status": "done",
+      "claimed_by": "lu-qianji",
+      "title": "可视化画布 Phase 2（拖拽编辑 + AI 辅助搭建 + 一键执行）",
+      "description": "在 Phase 1（CLI 工作流引擎）之上，提供可视化 Web 画布。后端 canvas_api.py（CRUD/转换/校验/调色板/调度/日志/模板路由，SQLite 持久化）；前端已迁移至 Vue 3 + TypeScript + @comfyorg/litegraph（src/GraphCanvas.vue，MVP 级）。⚠️ 规格漂移校正 2026-07-08（B4 反例）：原描述写 React Flow+static/canvas.html 已过时——实际前端为 Vue3+LiteGraph，旧 static/reactflow.css|reactflow.umd.js|canvas.html 为残留待清理（见 F013）。MVP 画布缺：节点拖拽放置(当前点击添加)/调度·日志·模板面板/DPR 优化/属性面板 combo 候选值对接后端，统一收口见 F012。集成 l5_gateway.py 画布路由。",
+      "depends_on": [
+        "F006",
+        "F007"
+      ],
+      "acceptance_criteria": [
+        "AC1: 后端提供 CRUD API（/api/workflows，SQLite 持久化），Flow↔Workflow 双向转换正确",
+        "AC2: 前端单页 HTML 画布（React + React Flow CDN），支持拖拽/连接/编辑/删除节点",
+        "AC3: AI 编译端点 /api/compile-to-flow 生成画布可加载的 Flow JSON",
+        "AC4: 调色板端点 /api/palette 返回可用节点分类列表",
+        "AC5: Flow 校验端点 /api/flow/validate 正确检测非法 DAG",
+        "AC6: 执行端点 /api/workflows/{id}/execute 调用 Engine 并记录节点级执行结果",
+        "AC7: Canvas API 测试全绿（24+项），安全复测 34 PASS 无回归"
+      ],
+      "retry_count": 0,
+      "archive_note": "",
+      "_schema": "feature/v1",
+      "guide": {},
+      "updated_at": "2026-07-08 02:15:48"
+    },
+    {
+      "id": "F009",
+      "status": "done",
+      "claimed_by": "lu-qianji",
+      "title": "定时调度器 Phase 3",
+      "description": "后台线程驱动的定时调度器（Scheduler），支持 cron 表达式和 interval 间隔触发。自带简化 cron 解析器（零外部依赖），从 SQLite 加载触发器记录，到期时通过 Engine.execute() 执行工作流（仍过 guardrails.check()）。新增 triggers 表 + trigger_runs 表。",
+      "depends_on": [
+        "F006",
+        "F008"
+      ],
+      "acceptance_criteria": [
+        "AC1: Scheduler 后台线程驱动，start/stop 生命周期正确",
+        "AC2: 支持 cron 表达式解析（*/5 * * * * / N,M / N-M / * 格式）",
+        "AC3: 触发器 CRUD 完整（创建/更新/删除/切换启用）",
+        "AC4: 触发器到期自动执行关联工作流",
+        "AC5: 调度执行仍过 guardrails.check()（复用 Engine.execute）"
+      ],
+      "retry_count": 0,
+      "archive_note": "",
+      "_schema": "feature/v1",
+      "guide": {},
+      "updated_at": "2026-07-08 02:15:48"
+    },
+    {
+      "id": "F010",
+      "status": "done",
+      "claimed_by": "lu-qianji",
+      "title": "执行日志回溯 Phase 3",
+      "description": "节点级执行日志持久化，失败截图存储，执行历史查询。新增 node_logs 表，扩展 execution_runs 表增加 summary/screenshot_b64 列。日志 API 支持执行详情（含节点日志）、节点截图查询、扩展执行历史。",
+      "depends_on": [
+        "F008"
+      ],
+      "acceptance_criteria": [
+        "AC1: 每次执行自动保存节点级日志到 node_logs 表",
+        "AC2: 支持按 run_id 查询执行详情（含节点日志）",
+        "AC3: 支持按 run_id+node_id 查询节点截图",
+        "AC4: 扩展执行历史含 summary 字段",
+        "AC5: dry_run 不截屏"
+      ],
+      "retry_count": 0,
+      "archive_note": "",
+      "_schema": "feature/v1",
+      "guide": {},
+      "updated_at": "2026-07-08 02:15:48"
+    },
+    {
+      "id": "F011",
+      "status": "done",
+      "claimed_by": "lu-qianji",
+      "title": "流程模板市场 Phase 3",
+      "description": "工作流模板系统：保存为模板、从模板创建、分类浏览搜索。新增 templates 表，预置 4 个种子模板（每日邮件对账/网页截图存档/文件整理/系统监控）。保存模板时自动剔除 params 中的敏感字段（密码/token 等）。",
+      "depends_on": [
+        "F008"
+      ],
+      "acceptance_criteria": [
+        "AC1: 模板 CRUD 完整（列表/详情/分类筛选/搜索）",
+        "AC2: 从模板创建工作流（自动增加使用计数）",
+        "AC3: 工作流另存为模板（含分类/标签）",
+        "AC4: 保存模板时自动剔除敏感字段",
+        "AC5: 预置 4 个种子模板"
+      ],
+      "retry_count": 0,
+      "archive_note": "",
+      "_schema": "feature/v1",
+      "guide": {},
+      "updated_at": "2026-07-08 02:15:48"
+    },
+    {
+      "id": "F012",
+      "title": "可视化画布增强（Vue3+LiteGraph MVP 收口）",
+      "description": "基于已迁移的 Vue 3 + @comfyorg/litegraph 画布（src/GraphCanvas.vue，status done 但 MVP 级），补齐生产级交互：①节点拖拽放置（调色板拖到画布落点创建，当前仅点击添加）②调度面板前端化（对接已存在的 /api/scheduler/*）③日志面板前端化（对接 /api/execution/{id}/detail|nodes|screenshot）④模板面板前端化（对接 /api/templates*）⑤属性面板 combo 候选值从后端 /api/palette 动态拉取 ⑥DPR 精细优化（高 DPI 清晰度与坐标缩放）。全部 additive，不破坏 F008 后端 canvas_api.py。",
+      "status": "planned",
+      "claimed_by": "",
+      "depends_on": [
+        "F008"
+      ],
+      "acceptance_criteria": [
+        "AC1: 从调色板拖拽节点到画布可在落点创建节点（非仅点击添加），且新建节点可被连线/编辑/删除。",
+        "AC2: 调度/日志/模板三个面板可用，分别正确展示触发器列表与创建、节点级执行日志时间线、模板浏览/搜索/使用，数据来自对应后端 API。",
+        "AC3: 属性面板 combo 类参数的候选值由 /api/palette 实时拉取（非硬编码），后端 palette 变更前端即更新。",
+        "AC4: 在高 DPI（≥150% 缩放/多屏）下画布渲染清晰、节点坐标点击命中准确（无偏移/模糊）。"
+      ],
+      "subtasks": [
+        {
+          "id": "F012.1",
+          "title": "节点拖拽放置",
+          "description": "调色板项拖拽到 GraphCanvas 落点创建节点；复用 LiteGraph addNodeOnPos；支持拖拽中预览。",
+          "depends_on": [
+            "F008"
+          ]
+        },
+        {
+          "id": "F012.2",
+          "title": "调度面板前端化",
+          "description": "Vue 面板对接 /api/scheduler/triggers CRUD + toggle + /status；创建触发器（cron/interval）。",
+          "depends_on": [
+            "F009",
+            "F008"
+          ]
+        },
+        {
+          "id": "F012.3",
+          "title": "日志面板前端化",
+          "description": "Vue 面板对接 /api/execution/{id}/detail|nodes|screenshot/{node_id} + /runs-extended；节点级时间线。",
+          "depends_on": [
+            "F010",
+            "F008"
+          ]
+        },
+        {
+          "id": "F012.4",
+          "title": "模板面板前端化",
+          "description": "Vue 面板对接 /api/templates CRUD + /workflows/from-template + save-template；搜索+分类。",
+          "depends_on": [
+            "F011",
+            "F008"
+          ]
+        },
+        {
+          "id": "F012.5",
+          "title": "属性面板 combo 对接后端 palette",
+          "description": "属性面板 combo 控件候选值从 /api/palette 动态拉取并缓存。",
+          "depends_on": [
+            "F008"
+          ]
+        },
+        {
+          "id": "F012.6",
+          "title": "DPR 精细优化",
+          "description": "canvas DPR 适配（devicePixelRatio）、高缩放下坐标映射校正。",
+          "depends_on": [
+            "F008"
+          ]
+        }
+      ],
+      "retry_count": 0,
+      "archive_note": "",
+      "_schema": "feature/v1",
+      "guide": {},
+      "updated_at": "2026-07-08 02:15:54"
+    },
+    {
+      "id": "F013",
+      "title": "工程卫生与治理（task.json 刷新 / 临时文件清理 / git 初始化 / 规格一致性）",
+      "description": "收口项目工程卫生，为 L5 自驱（B1 安全边界 commit+push、soara-rollback）提供前提：①刷新 task.json 补 F007–F011（当前仅到 F006）②清理根目录 15 个 _* 临时文件（_diag.py/_qa*.txt/_demo*.txt/_diff_*.txt/_gatesrc.txt/_git.txt/_tj.txt/_vt.txt）+ .autocode 下 3 个（_chk.py/_chk.txt/_verify_fix.py）③评估移除 auto-coding-agent/ 夹带目录（含 43KB zip）④git init + .gitignore + 首提交 ⑤清理旧 React Flow 残留 static/reactflow.css|reactflow.umd.js|canvas.html（见 B4 规格漂移反例）⑥README 刷新（pytest 370 passed；补 Vue 画布说明）⑦project-spec F008 描述已校正（2026-07-08）。",
+      "status": "planned",
+      "claimed_by": "",
+      "depends_on": [],
+      "acceptance_criteria": [
+        "AC1: task.json 含 F001–F014 全部条目且状态/claimed_by 与 project-spec 一致。",
+        "AC2: 根目录及 .autocode 无 _* 临时文件；auto-coding-agent/ 已移除或移出仓库根。",
+        "AC3: 仓库已 git init 且完成首提交；.gitignore 覆盖 __pycache__/node_modules/.pytest_cache/data/*.db 等。",
+        "AC4: 旧 React Flow 静态文件（static/reactflow.*、static/canvas.html）已删除；仅 Vue3+LiteGraph 画布为权威基线。",
+        "AC5: README 与 project-spec F008 描述与现状一致（370 passed；Vue 画布）。"
+      ],
+      "subtasks": [
+        {
+          "id": "F013.1",
+          "title": "task.json 刷新",
+          "description": "补 T-F007..T-F011（done, claimed_by=lu-qianji）+ T-F012..T-F014（planned）。",
+          "depends_on": []
+        },
+        {
+          "id": "F013.2",
+          "title": "临时文件清理",
+          "description": "删除根 _*.py/_*.txt 与 .autocode/_*.py/_*.txt；评估 auto-coding-agent/ 去向。",
+          "depends_on": []
+        },
+        {
+          "id": "F013.3",
+          "title": "git 初始化",
+          "description": "git init + .gitignore + 首提交；先于任何代码改动以满足 l5bridge 安全边界。",
+          "depends_on": [
+            "F013.2"
+          ]
+        },
+        {
+          "id": "F013.4",
+          "title": "旧画布残留清理",
+          "description": "删除 static/reactflow.css|reactflow.umd.js|canvas.html。",
+          "depends_on": [
+            "F013.3"
+          ]
+        },
+        {
+          "id": "F013.5",
+          "title": "README/规格一致性",
+          "description": "README 刷新 370 passed + Vue 画布；确认 F008 描述已校正。",
+          "depends_on": []
+        }
+      ],
+      "retry_count": 0,
+      "archive_note": "",
+      "_schema": "feature/v1",
+      "guide": {},
+      "updated_at": "2026-07-08 02:15:48"
+    },
+    {
+      "id": "F014",
+      "title": "启动器与 L5 网关健壮性（端口统一 + --mode both 修复）",
+      "description": "统一端口口径为 8792 并修复 --mode both 端口冲突：①l5_gateway.py 的 docstring 示例与 --port help 文案仍写 8787，统一为 8792（与 PORT 默认、run_server.py、launcher_gui.py 一致）②--mode both 时 HTTP 后台线程已占 8792，FastMCP stdio 回退尝试复用同端口导致冲突，需隔离传输层（stdio 不占端口 / 显式隔离）。run_server.py 与 launcher_gui.py 已用 8792，无需改。",
+      "status": "planned",
+      "claimed_by": "",
+      "depends_on": [
+        "F007"
+      ],
+      "acceptance_criteria": [
+        "AC1: l5_gateway.py docstring 与 --port help 文案端口均为 8792，与 run_server/launcher 口径一致。",
+        "AC2: --mode both 可同时启动 HTTP(8792) 与 MCP(stdio) 且无端口冲突（启动日志含 HTTP + MCP stdio 两行、进程不崩）。"
+      ],
+      "subtasks": [
+        {
+          "id": "F014.1",
+          "title": "端口口径统一",
+          "description": "l5_gateway.py docstring/help 8787→8792。",
+          "depends_on": [
+            "F007"
+          ]
+        },
+        {
+          "id": "F014.2",
+          "title": "--mode both 端口冲突修复",
+          "description": "隔离 HTTP 与 MCP stdio 传输层，stdio 不占用 8792；加启动/冲突单测。",
+          "depends_on": [
+            "F007"
+          ]
+        }
+      ],
+      "retry_count": 0,
+      "archive_note": "",
+      "_schema": "feature/v1",
+      "guide": {},
+      "updated_at": "2026-07-08 02:15:48"
+    }
+  ]
+}

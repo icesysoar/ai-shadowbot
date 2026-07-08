@@ -1,0 +1,22 @@
+{
+  "id": "F010",
+  "status": "done",
+  "claimed_by": "lu-qianji",
+  "title": "执行日志回溯 Phase 3",
+  "description": "节点级执行日志持久化，失败截图存储，执行历史查询。新增 node_logs 表，扩展 execution_runs 表增加 summary/screenshot_b64 列。日志 API 支持执行详情（含节点日志）、节点截图查询、扩展执行历史。",
+  "depends_on": [
+    "F008"
+  ],
+  "acceptance_criteria": [
+    "AC1: 每次执行自动保存节点级日志到 node_logs 表",
+    "AC2: 支持按 run_id 查询执行详情（含节点日志）",
+    "AC3: 支持按 run_id+node_id 查询节点截图",
+    "AC4: 扩展执行历史含 summary 字段",
+    "AC5: dry_run 不截屏"
+  ],
+  "retry_count": 0,
+  "archive_note": "",
+  "_schema": "feature/v1",
+  "guide": {},
+  "updated_at": "2026-07-08 02:15:48"
+}

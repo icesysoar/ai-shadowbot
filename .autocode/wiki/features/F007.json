@@ -1,0 +1,21 @@
+{
+  "id": "F007",
+  "status": "done",
+  "claimed_by": "lu-qianji",
+  "title": "L5 跨 AI 触发网关（HTTP+MCP）",
+  "description": "让外部 AI 工具通过 HTTP REST API 或 MCP stdio 调用工作流编译器+执行引擎。核心接口：/l5/compile（编译）、/l5/run-workflow（执行）、/l5/ai-run（一键编译+执行）、MCP tools。底层 l5_gateway.py。",
+  "acceptance_criteria": [
+    "AC1: HTTP REST API 提供 /l5/compile、/l5/run-workflow、/l5/ai-run 端点，外部 AI 可成功编译并执行工作流（仍过 guardrails.check()）。",
+    "AC2: MCP server（stdio transport）暴露等价 tools（compile/run-workflow/ai-run 及 Phase 3 的 schedule/logs/templates），可被 MCP 客户端调用。",
+    "AC3: 鉴权（Bearer Token）生效；无 token/错误 token 被拒；默认端口 8792 与启动器/run_server 口径一致。"
+  ],
+  "depends_on": [
+    "F006",
+    "F004"
+  ],
+  "retry_count": 0,
+  "archive_note": "",
+  "_schema": "feature/v1",
+  "guide": {},
+  "updated_at": "2026-07-08 02:15:48"
+}

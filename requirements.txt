@@ -1,0 +1,12 @@
+# AI 版影刀 / ai-shadowbot 依赖
+# 执行与观测层（真实模式需要；dry_run 演示无需安装）
+pyautogui>=0.9.54
+Pillow>=9.0.0
+# 可选：窗口/坐标管理（Windows 焦点、窗口定位）
+pygetwindow>=0.0.9
+# 可选：护栏层全局热键监听（ESC/Ctrl+C 紧急停止）
+keyboard>=0.13.5
+# LLM 规划层（OpenAI 兼容 function calling）
+openai>=1.0.0
+# 测试
+pytest>=7.0.0

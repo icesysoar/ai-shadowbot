@@ -1,0 +1,20 @@
+{
+  "id": "F001",
+  "title": "自然语言解析与动作规划 (LLM function calling)",
+  "description": "用户自然语言指令 → 结构化 action 序列。基于 LLM function calling，将可执行的桌面动作注册为工具 schema，输出可被 F002 直接消费的 JSON 动作列表；支持多步分解与截图上下文输入。动作须显式建模为语义化类型（click/type/shell_command/file_delete/process_kill/system_shutdown/privilege_escalate/...），供 F003 按类型做语义 gate。",
+  "status": "done",
+  "claimed_by": "lu-qianji",
+  "acceptance_criteria": [
+    "AC1: 给定用户自然语言指令，规划器输出合法 JSON action 序列（含 action 类型与参数），非法/残缺输出可触发受控重试而非崩溃。",
+    "AC2: 支持多步任务分解（≥3 步），每一步都能映射到 F002 已注册的动作原语（schema 对齐）。",
+    "AC3: 当指令无法映射到任何动作时，返回『无法执行 + 原因』，不得编造不存在的动作。",
+    "AC4: 支持截图上下文输入（接收 F002 截图）作为规划的视觉依据，实现『看屏幕→决策』闭环。",
+    "AC5: 破坏性/高危操作须显式建模为独立语义化 action 类型（file_delete / process_kill / system_shutdown / privilege_escalate / shell_command 等，含参数），输出结构化类型+参数，供 F003 按类型拦截，不得隐写成普通 type 绕过。"
+  ],
+  "depends_on": [],
+  "retry_count": 0,
+  "archive_note": "",
+  "_schema": "feature/v1",
+  "guide": {},
+  "updated_at": "2026-07-08 02:15:48"
+}

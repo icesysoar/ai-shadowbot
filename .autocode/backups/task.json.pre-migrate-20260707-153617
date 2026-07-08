@@ -1,0 +1,86 @@
+{
+  "tasks": [
+    {
+      "id": "T-F001",
+      "feature_id": "F001",
+      "title": "自然语言解析与动作规划 (LLM function calling)",
+      "description": "用户自然语言指令 → 结构化 action 序列。基于 LLM function calling，将可执行的桌面动作注册为工具 schema，输出可被 F002 直接消费的 JSON 动作列表；支持多步分解与截图上下文输入。动作须显式建模为语义化类型（click/type/shell_command/file_delete/process_kill/system_shutdown/privileg",
+      "status": "done",
+      "priority": "P2",
+      "phase": "init",
+      "claimed_by": "lu-qianji",
+      "depends_on": []
+    },
+    {
+      "id": "T-F002",
+      "feature_id": "F002",
+      "title": "桌面动作执行引擎 (鼠标/键盘/截图)",
+      "description": "动作原语执行层：封装 PyAutoGUI 实现 move/click/double_click/type/keypress/scroll/screenshot，支持窗口内坐标与跨平台；每个动作执行前回调 F003 护栏钩子；可选终端命令通道。M2 增强 Open-Interface 式『无障碍树 + 截图』混合观测，提升定位鲁棒性。",
+      "status": "done",
+      "priority": "P2",
+      "phase": "init",
+      "claimed_by": "lu-qianji",
+      "depends_on": []
+    },
+    {
+      "id": "T-F003",
+      "feature_id": "F003",
+      "title": "安全护栏与人工确认机制",
+      "description": "在动作执行前做拦截与确认的护栏层：默认未确认即拦截、三档确认策略（计划级批量+运行时高危单步）、语义化黑名单 gate、提示注入防护、隐私脱敏、全局紧急停止、不可逆动作强提示；保障 RPA 自动执行不误伤系统与数据。",
+      "status": "done",
+      "priority": "P2",
+      "phase": "init",
+      "claimed_by": "lu-qianji",
+      "depends_on": [
+        "F002"
+      ]
+    },
+    {
+      "id": "T-F004",
+      "feature_id": "F004",
+      "title": "CLI / 聊天交互入口",
+      "description": "用户交互载体：启动 CLI 后接受自然语言输入，调用 F001 得到计划并展示，按 F003 策略确认后驱动 F002 执行；执行中回显进度与截图，支持中途停止与会话记录/重放。",
+      "status": "done",
+      "priority": "P2",
+      "phase": "init",
+      "claimed_by": "lu-qianji",
+      "depends_on": [
+        "F001",
+        "F002",
+        "F003"
+      ]
+    },
+    {
+      "id": "T-F005",
+      "feature_id": "F005",
+      "title": "视觉坐标系统",
+      "description": "视觉感知-坐标映射子系统：截图 → 多模态视觉模型识别 UI 元素 → 输出屏幕坐标 → 驱动点击/输入，落地 computer-use grounding 闭环。planner 从「需用户手报坐标」升级为「AI 自看自点」。视觉派生动作原样过 F003 护栏（AC4/AC5/R1/R2/R3 不变）；OCR 屏幕文字只作数据、过 InjectionClassifier（R2 极高风缓解）。详见 ",
+      "status": "done",
+      "priority": "P2",
+      "phase": "init",
+      "claimed_by": "lu-qianji",
+      "depends_on": [
+        "F001",
+        "F002"
+      ]
+    },
+    {
+      "id": "T-F006",
+      "feature_id": "F006",
+      "title": "工作流引擎 Phase 1（AI 编译 + DAG 执行）",
+      "description": "工作流 DAG 数据结构 + AI 编译器（自然语言→节点图）+ 执行引擎（状态机/条件/循环/变量/错误策略）。用户说需求→AI 自动编节点图→展示审查→确认执行。对现有 F001-F005 完全 additive。",
+      "status": "done",
+      "priority": "P2",
+      "phase": "init",
+      "claimed_by": "lu-qianji",
+      "depends_on": [
+        "F001",
+        "F002",
+        "F004",
+        "F005"
+      ]
+    }
+  ],
+  "version": "1.0",
+  "generated_at": "2026-07-07T12:51:54.594690"
+}

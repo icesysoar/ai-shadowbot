@@ -1,0 +1,209 @@
+{
+  "_source": ".autocode/wiki/tasks/*.md",
+  "_note": "自动从 Wiki 重建，请编辑 wiki/tasks/*.md",
+  "project": "自动系统",
+  "total_tasks": 14,
+  "completed": 11,
+  "updated_at": "2026-07-08 16:02",
+  "tasks": [
+    {
+      "id": "T-F001",
+      "title": "自然语言解析与动作规划 (LLM function calling)",
+      "feature_id": "F001",
+      "status": "done",
+      "priority": "P2",
+      "claimed_by": "lu-qianji",
+      "passes": false,
+      "validation_type": "manual",
+      "depends_on": [],
+      "completed_at": ""
+    },
+    {
+      "id": "T-F002",
+      "title": "桌面动作执行引擎 (鼠标/键盘/截图)",
+      "feature_id": "F002",
+      "status": "done",
+      "priority": "P2",
+      "claimed_by": "lu-qianji",
+      "passes": false,
+      "validation_type": "manual",
+      "depends_on": [],
+      "completed_at": ""
+    },
+    {
+      "id": "T-F003",
+      "title": "安全护栏与人工确认机制",
+      "feature_id": "F003",
+      "status": "done",
+      "priority": "P2",
+      "claimed_by": "lu-qianji",
+      "passes": false,
+      "validation_type": "manual",
+      "depends_on": [
+        "F002"
+      ],
+      "completed_at": ""
+    },
+    {
+      "id": "T-F004",
+      "title": "CLI / 聊天交互入口",
+      "feature_id": "F004",
+      "status": "done",
+      "priority": "P2",
+      "claimed_by": "lu-qianji",
+      "passes": false,
+      "validation_type": "manual",
+      "depends_on": [
+        "F001",
+        "F002",
+        "F003"
+      ],
+      "completed_at": ""
+    },
+    {
+      "id": "T-F005",
+      "title": "视觉坐标系统",
+      "feature_id": "F005",
+      "status": "done",
+      "priority": "P2",
+      "claimed_by": "lu-qianji",
+      "passes": false,
+      "validation_type": "manual",
+      "depends_on": [
+        "F001",
+        "F002"
+      ],
+      "completed_at": ""
+    },
+    {
+      "id": "T-F006",
+      "title": "工作流引擎 Phase 1（AI 编译 + DAG 执行）",
+      "feature_id": "F006",
+      "status": "done",
+      "priority": "P2",
+      "claimed_by": "lu-qianji",
+      "passes": false,
+      "validation_type": "manual",
+      "depends_on": [
+        "F001",
+        "F002",
+        "F004",
+        "F005"
+      ],
+      "completed_at": ""
+    },
+    {
+      "id": "T-F007",
+      "title": "L5 跨 AI 触发网关（HTTP+MCP）",
+      "feature_id": "F007",
+      "status": "done",
+      "priority": "P1",
+      "claimed_by": "lu-qianji",
+      "passes": false,
+      "validation_type": "manual",
+      "depends_on": [
+        "F006",
+        "F004"
+      ],
+      "completed_at": ""
+    },
+    {
+      "id": "T-F008",
+      "title": "可视化画布 Phase 2（拖拽编辑 + AI 辅助搭建 + 一键执行）",
+      "feature_id": "F008",
+      "status": "done",
+      "priority": "P1",
+      "claimed_by": "lu-qianji",
+      "passes": false,
+      "validation_type": "manual",
+      "depends_on": [
+        "F006",
+        "F007"
+      ],
+      "completed_at": ""
+    },
+    {
+      "id": "T-F009",
+      "title": "定时调度器 Phase 3",
+      "feature_id": "F009",
+      "status": "done",
+      "priority": "P2",
+      "claimed_by": "lu-qianji",
+      "passes": false,
+      "validation_type": "manual",
+      "depends_on": [
+        "F006",
+        "F008"
+      ],
+      "completed_at": ""
+    },
+    {
+      "id": "T-F010",
+      "title": "执行日志回溯 Phase 3",
+      "feature_id": "F010",
+      "status": "done",
+      "priority": "P2",
+      "claimed_by": "lu-qianji",
+      "passes": false,
+      "validation_type": "manual",
+      "depends_on": [
+        "F008"
+      ],
+      "completed_at": ""
+    },
+    {
+      "id": "T-F011",
+      "title": "流程模板市场 Phase 3",
+      "feature_id": "F011",
+      "status": "done",
+      "priority": "P2",
+      "claimed_by": "lu-qianji",
+      "passes": false,
+      "validation_type": "manual",
+      "depends_on": [
+        "F008"
+      ],
+      "completed_at": ""
+    },
+    {
+      "id": "T-F012",
+      "title": "可视化画布增强（Vue3+LiteGraph MVP 收口）",
+      "feature_id": "F012",
+      "status": "planned",
+      "priority": "P0",
+      "claimed_by": "",
+      "passes": false,
+      "validation_type": "manual",
+      "depends_on": [
+        "F008"
+      ],
+      "completed_at": ""
+    },
+    {
+      "id": "T-F013",
+      "title": "工程卫生与治理（task.json 刷新 / 临时文件清理 / git 初始化 / 规格一致性）",
+      "feature_id": "F013",
+      "status": "planned",
+      "priority": "P1",
+      "claimed_by": "",
+      "passes": false,
+      "validation_type": "manual",
+      "depends_on": [],
+      "completed_at": ""
+    },
+    {
+      "id": "T-F014",
+      "title": "启动器与 L5 网关健壮性（端口统一 + --mode both 修复）",
+      "feature_id": "F014",
+      "status": "planned",
+      "priority": "P0",
+      "claimed_by": "",
+      "passes": false,
+      "validation_type": "manual",
+      "depends_on": [
+        "F007"
+      ],
+      "completed_at": ""
+    }
+  ]
+}

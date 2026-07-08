@@ -1,0 +1,74 @@
+{
+  "id": "F012",
+  "title": "可视化画布增强（Vue3+LiteGraph MVP 收口）",
+  "description": "基于已迁移的 Vue 3 + @comfyorg/litegraph 画布（src/GraphCanvas.vue，status done 但 MVP 级），补齐生产级交互：①节点拖拽放置（调色板拖到画布落点创建，当前仅点击添加）②调度面板前端化（对接已存在的 /api/scheduler/*）③日志面板前端化（对接 /api/execution/{id}/detail|nodes|screenshot）④模板面板前端化（对接 /api/templates*）⑤属性面板 combo 候选值从后端 /api/palette 动态拉取 ⑥DPR 精细优化（高 DPI 清晰度与坐标缩放）。全部 additive，不破坏 F008 后端 canvas_api.py。",
+  "status": "planned",
+  "claimed_by": "",
+  "depends_on": [
+    "F008"
+  ],
+  "acceptance_criteria": [
+    "AC1: 从调色板拖拽节点到画布可在落点创建节点（非仅点击添加），且新建节点可被连线/编辑/删除。",
+    "AC2: 调度/日志/模板三个面板可用，分别正确展示触发器列表与创建、节点级执行日志时间线、模板浏览/搜索/使用，数据来自对应后端 API。",
+    "AC3: 属性面板 combo 类参数的候选值由 /api/palette 实时拉取（非硬编码），后端 palette 变更前端即更新。",
+    "AC4: 在高 DPI（≥150% 缩放/多屏）下画布渲染清晰、节点坐标点击命中准确（无偏移/模糊）。"
+  ],
+  "subtasks": [
+    {
+      "id": "F012.1",
+      "title": "节点拖拽放置",
+      "description": "调色板项拖拽到 GraphCanvas 落点创建节点；复用 LiteGraph addNodeOnPos；支持拖拽中预览。",
+      "depends_on": [
+        "F008"
+      ]
+    },
+    {
+      "id": "F012.2",
+      "title": "调度面板前端化",
+      "description": "Vue 面板对接 /api/scheduler/triggers CRUD + toggle + /status；创建触发器（cron/interval）。",
+      "depends_on": [
+        "F009",
+        "F008"
+      ]
+    },
+    {
+      "id": "F012.3",
+      "title": "日志面板前端化",
+      "description": "Vue 面板对接 /api/execution/{id}/detail|nodes|screenshot/{node_id} + /runs-extended；节点级时间线。",
+      "depends_on": [
+        "F010",
+        "F008"
+      ]
+    },
+    {
+      "id": "F012.4",
+      "title": "模板面板前端化",
+      "description": "Vue 面板对接 /api/templates CRUD + /workflows/from-template + save-template；搜索+分类。",
+      "depends_on": [
+        "F011",
+        "F008"
+      ]
+    },
+    {
+      "id": "F012.5",
+      "title": "属性面板 combo 对接后端 palette",
+      "description": "属性面板 combo 控件候选值从 /api/palette 动态拉取并缓存。",
+      "depends_on": [
+        "F008"
+      ]
+    },
+    {
+      "id": "F012.6",
+      "title": "DPR 精细优化",
+      "description": "canvas DPR 适配（devicePixelRatio）、高缩放下坐标映射校正。",
+      "depends_on": [
+        "F008"
+      ]
+    }
+  ],
+  "retry_count": 0,
+  "archive_note": "",
+  "_schema": "feature/v1",
+  "guide": {},
+  "updated_at": "2026-07-08 02:15:54"
+}

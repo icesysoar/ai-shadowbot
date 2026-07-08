@@ -1,0 +1,23 @@
+{
+  "name": "ai-shadowbot-frontend",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "AI 影刀工作流画布前端 — Vue 3 + TypeScript + LiteGraph.js (Alpha Node 同款技术栈)",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "typecheck": "vue-tsc --noEmit",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@comfyorg/litegraph": "0.17.2",
+    "vue": "^3.5.13"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.2.1",
+    "typescript": "^5.6.3",
+    "vite": "^6.0.7",
+    "vue-tsc": "^2.2.0"
+  }
+}

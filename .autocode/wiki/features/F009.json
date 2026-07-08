@@ -1,0 +1,23 @@
+{
+  "id": "F009",
+  "status": "done",
+  "claimed_by": "lu-qianji",
+  "title": "定时调度器 Phase 3",
+  "description": "后台线程驱动的定时调度器（Scheduler），支持 cron 表达式和 interval 间隔触发。自带简化 cron 解析器（零外部依赖），从 SQLite 加载触发器记录，到期时通过 Engine.execute() 执行工作流（仍过 guardrails.check()）。新增 triggers 表 + trigger_runs 表。",
+  "depends_on": [
+    "F006",
+    "F008"
+  ],
+  "acceptance_criteria": [
+    "AC1: Scheduler 后台线程驱动，start/stop 生命周期正确",
+    "AC2: 支持 cron 表达式解析（*/5 * * * * / N,M / N-M / * 格式）",
+    "AC3: 触发器 CRUD 完整（创建/更新/删除/切换启用）",
+    "AC4: 触发器到期自动执行关联工作流",
+    "AC5: 调度执行仍过 guardrails.check()（复用 Engine.execute）"
+  ],
+  "retry_count": 0,
+  "archive_note": "",
+  "_schema": "feature/v1",
+  "guide": {},
+  "updated_at": "2026-07-08 02:15:48"
+}

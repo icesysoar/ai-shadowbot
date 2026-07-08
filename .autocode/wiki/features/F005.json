@@ -1,0 +1,62 @@
+{
+  "id": "F005",
+  "title": "视觉坐标系统",
+  "description": "视觉感知-坐标映射子系统：截图 → 多模态视觉模型识别 UI 元素 → 输出屏幕坐标 → 驱动点击/输入，落地 computer-use grounding 闭环。planner 从「需用户手报坐标」升级为「AI 自看自点」。视觉派生动作原样过 F003 护栏（AC4/AC5/R1/R2/R3 不变）；OCR 屏幕文字只作数据、过 InjectionClassifier（R2 极高风缓解）。详见 docs/PRD-vision.md。",
+  "status": "done",
+  "claimed_by": "lu-qianji",
+  "depends_on": [
+    "F001",
+    "F002"
+  ],
+  "acceptance_criteria": [
+    "AC1: 截图经 Observer 脱敏（AC5 前置，consensus-vision CV5）后送视觉模型，返回结构化元素列表（含 bbox 与置信度），坐标基于截图像素空间；打码图定位后坐标须 remap 回原图再驱动动作（mask→remap 防点偏）。",
+    "AC2: 自然语言目标（点击/输入某元素）能解析为带坐标的 click/type_text 动作，经 actions.validate_action 强校验，类型限定既有 9 种（不新增动作类型）。",
+    "AC3: 视觉定位失败 → 受控降级（返回原因，不编造坐标）；缺 LLM_API_KEY → mock 确定性降级，不崩。",
+    "AC4: 屏幕文字（OCR 派生）只作数据，不信任为指令；含注入诱导时过 InjectionClassifier → CONFIRM 绝不 ALLOW（AC4/R1 闭环）。",
+    "AC5: 视觉派生动作原样过 guardrails.gate()，与手报坐标动作走完全相同安全路径；dry_run 下 lazy import、不真截图/识别/点击。"
+  ],
+  "subtasks": [
+    {
+      "id": "F005.1",
+      "title": "视觉感知模块（vision.py：截图→元素坐标）",
+      "description": "新增 ai_shadowbot/vision.py，VisionGrounder 类：输入 Observer.screenshot() base64 PNG + 目标文本，调用多模态视觉模型输出 DetectedElement{label,x,y,w,h,confidence}。lazy import 视觉 client；无 key/无网/无库降级；dry_run 不真识别；复用 Observer 脱敏前置（AC5）。",
+      "depends_on": [
+        "F002"
+      ]
+    },
+    {
+      "id": "F005.2",
+      "title": "坐标→动作映射（自然语言目标→元素定位→click 动作）",
+      "description": "ground_to_action(target, vision_result) → List[Action]：元素 bbox 取中心推坐标，产出 click/double_click/right_click/type_text；支持空间约束消歧；坐标越界拒绝；产出经 validate_action 校验。",
+      "depends_on": [
+        "F005.1",
+        "F002"
+      ]
+    },
+    {
+      "id": "F005.3",
+      "title": "与 planner 集成（视觉结果进规划上下文）",
+      "description": "Planner.plan() 在缺坐标时自动走视觉定位补全坐标，并入 normalize_plan；视觉结果作 grounding 上下文。向后兼容手报坐标/mock 路径；OCR 屏幕文字只作数据（AC4/R1）。",
+      "depends_on": [
+        "F005.1",
+        "F005.2",
+        "F001"
+      ]
+    },
+    {
+      "id": "F005.4",
+      "title": "与 executor/guardrails 集成（视觉派生动作仍过护栏+脱敏）",
+      "description": "F005.2 产出 action 以普通 click/type_text 进入 Executor.execute()，原样过 guardrails.gate()；截图外发视觉模型前强制 Observer 脱敏；OCR 文本过 InjectionClassifier；真实模式无护栏拒绝裸执行（沿用 executor 铁律）。",
+      "depends_on": [
+        "F005.2",
+        "F003",
+        "F002"
+      ]
+    }
+  ],
+  "retry_count": 0,
+  "archive_note": "",
+  "_schema": "feature/v1",
+  "guide": {},
+  "updated_at": "2026-07-08 02:15:48"
+}

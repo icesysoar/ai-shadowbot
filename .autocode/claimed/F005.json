@@ -1,0 +1,6 @@
+{
+  "feature": "F005",
+  "claimed_by": "lu-qianji",
+  "claimed_at": "2026-07-07",
+  "note": "TDD 实现视觉坐标系统 F005.1-4，严格依据 PRD-vision/consensus-vision/wiki-prelude-vision"
+}

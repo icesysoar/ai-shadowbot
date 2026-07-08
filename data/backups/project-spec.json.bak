@@ -1,0 +1,222 @@
+{
+  "meta": {
+    "name": "AI 版影刀 / ai-shadowbot",
+    "description": "自然语言→桌面动作规划的 RPA / Computer-Use agent。用户用聊天说要做什么，AI 编译为鼠标/键盘/截图/终端动作并自动执行。",
+    "version": "0.1.1",
+    "created_by": "ye-zhiqiu",
+    "created_at": "2026-07-06",
+    "updated_by": "ye-zhiqiu",
+    "updated_at": "2026-07-08",
+    "tech_stack": {
+      "language": "Python >= 3.10",
+      "execution_backend": "PyAutoGUI + pygetwindow (参考 computer-agent 感知-动作闭环)",
+      "perception": "截图感知（F002）；M2 增强 Open-Interface 式『无障碍树 + 截图』混合观测（pywinauto / UI Automation）",
+      "llm": "可配置 LLM provider (function calling)，如 OpenAI / Claude / 通义千问；支持私有化/本地 BASE_URL",
+      "interface": "CLI / 聊天入口"
+    }
+  },
+  "milestones": [
+    {
+      "id": "M1",
+      "title": "执行引擎地基 (基线，不阻塞开发)",
+      "description": "F002 基础动作原语 + 最小截图能力；F003 最小硬黑名单拦截 + ESC 急停。先按此推进，增强项入 M2/M3。",
+      "features": [
+        "F002",
+        "F003"
+      ],
+      "next_action": "实现 PyAutoGUI 封装与硬黑名单拦截 + ESC 急停",
+      "verification": "能手动触发一个 click/高危动作并被护栏拦截/放行",
+      "feature_ids": []
+    },
+    {
+      "id": "M2",
+      "title": "规划大脑 + 感知增强",
+      "description": "F001 LLM function calling 规划器接入，产出对齐 F002 schema 的 action 序列；F002 增 Open-Interface 式『无障碍树 + 截图』混合感知（元素锚定+重试）。",
+      "features": [
+        "F001"
+      ],
+      "next_action": "接入可配置 LLM provider 并实现意图→action 编译；实现无障碍树混合观测",
+      "verification": "给定『打开记事本并输入 hello』能产出正确 action 序列，且元素锚定在窗口变动下仍命中",
+      "feature_ids": []
+    },
+    {
+      "id": "M3",
+      "title": "安全闭环 (增强项集中)",
+      "description": "F003 完整：语义化 gate + 三档确认状态机 + 提示注入防护 + 隐私脱敏 + 不可逆动作强提示。",
+      "features": [
+        "F003"
+      ],
+      "next_action": "完善确认状态机、提示注入防护、屏幕脱敏与本地模型默认",
+      "verification": "高危动作强制确认、ESC 可暂停、提示注入不越权、截图外发可脱敏",
+      "feature_ids": []
+    },
+    {
+      "id": "M4",
+      "title": "交互入口",
+      "description": "F004 CLI 聊天入口联通 F001/F002/F003，形成端到端可用 demo。",
+      "features": [
+        "F004"
+      ],
+      "next_action": "实现 CLI 主循环与计划展示/确认交互",
+      "verification": "端到端：聊天输入→计划→确认→自动执行",
+      "feature_ids": []
+    },
+    {
+      "id": "M5",
+      "title": "视觉坐标系统 (F005)",
+      "description": "F005 视觉感知-坐标映射：vision.py 截图→元素坐标（F005.1），坐标→动作映射（F005.2），与 planner 集成增强 grounding（F005.3），与 executor/guardrails 集成保安全（F005.4）。依赖 F001/F002/F003 已 done。",
+      "features": [
+        "F005"
+      ],
+      "next_action": "鲁千机按 F005.1→F005.2→F005.3→F005.4 实现；复用 Observer 脱敏与 InjectionClassifier",
+      "verification": "端到端『点击登录按钮』能看图定位并带坐标点击；含注入/敏感截图场景安全闭环（AC4/R1/AC5）",
+      "feature_ids": []
+    },
+    {
+      "id": "M6",
+      "title": "AI 工作流引擎 Phase 1",
+      "description": "F006 工作流 DAG 数据结构 + AI 编译器 + 执行引擎 + 变量系统 + 错误策略。用户说需求→AI 自动编节点图→展示审查→确认执行。",
+      "features": [
+        "F006"
+      ],
+      "next_action": "打通 CLI 编译→执行流水线",
+      "verification": "pytest 全绿（含新增 87 项工作流/编译器/引擎测试），verify_security_fixes.py 34 PASS 无回归",
+      "feature_ids": []
+    },
+    {
+      "id": "M7",
+      "title": "可视化画布 Phase 2",
+      "description": "F008 可视化画布：React Flow 拖拽编辑 + SQLite 持久化 + AI 编译→画布 + 执行监控。canvas_api.py + static/canvas.html + l5_gateway 集成。",
+      "features": [
+        "F008"
+      ],
+      "next_action": "启动 L5 网关后浏览器访问 http://127.0.0.1:8792/ 可见画布界面",
+      "verification": "pytest 全绿（含新增 24 项画布测试），verify_security_fixes.py 34 PASS 无回归",
+      "feature_ids": []
+    },
+    {
+      "id": "M8",
+      "title": "调度与生态 Phase 3",
+      "description": "F009 定时调度器 + F010 执行日志回溯 + F011 流程模板市场 + L5 集成。调度器后台线程驱动，节点级日志持久化，模板系统含 4 种子模板。",
+      "features": [
+        "F009",
+        "F010",
+        "F011"
+      ],
+      "next_action": "启动 L5 网关，浏览器访问可见新调度/日志/模板面板",
+      "verification": "pytest 全绿（新增 70 项 Phase 3 测试），verify_security_fixes.py 34 PASS 无回归",
+      "feature_ids": []
+    },
+    {
+      "id": "M9",
+      "title": "画布增强与网关收口",
+      "description": "F012 画布生产级交互（拖拽/三面板/combo/DPR）+ F014 端口统一与 --mode both 修复。使 Vue3+LiteGraph 画布达可用基线、L5 网关双模稳定。",
+      "features": [
+        "F012",
+        "F014"
+      ],
+      "next_action": "前端落地 F012.1-6；后端落地 F014.1-2",
+      "verification": "拖拽放置可用；三面板数据正确；--mode both HTTP+MCP 同时起无冲突；pytest 370 无回归",
+      "feature_ids": []
+    },
+    {
+      "id": "M10",
+      "title": "工程卫生与治理（L5 前置）",
+      "description": "F013 task.json 刷新 + 临时/git 治理 + 旧画布清理 + README/规格一致性。为 L5 Go 模式安全边界（commit+push / rollback）提供仓库前提（B1）与消除 spec 漂移（B4）。",
+      "features": [
+        "F013"
+      ],
+      "next_action": "先清临时文件→git init+首提交→清旧画布→刷新 README/task.json",
+      "verification": "git 首提交存在；根无 _* 文件；task.json 含 F001-F014；仅 Vue 画布为基线",
+      "feature_ids": []
+    }
+  ],
+  "env_vars": [
+    {
+      "key": "LLM_API_KEY",
+      "description": "LLM provider 的 API key（如 OpenAI / Claude / 通义千问）",
+      "required": true,
+      "example": "sk-..."
+    },
+    {
+      "key": "LLM_BASE_URL",
+      "description": "可选，自定义/私有化/本地 LLM 网关地址（隐私：优先指向本地模型）",
+      "required": false,
+      "example": "https://api.openai.com/v1 或 http://localhost:11434/v1"
+    },
+    {
+      "key": "LLM_MODEL",
+      "description": "使用的模型名",
+      "required": false,
+      "example": "gpt-4o"
+    },
+    {
+      "key": "SCREEN_MASK_SENSITIVE",
+      "description": "截图外发前是否对敏感区（密码框/账号/剪贴板）脱敏打码，默认 true",
+      "required": false,
+      "example": "true"
+    }
+  ],
+  "collaboration_log": [
+    {
+      "who": "ye-zhiqiu",
+      "when": "2026-07-06",
+      "what": "初始化 project-spec.json，定义 4 个 MVP feature 与 4 个里程碑，完成 5 维需求验证"
+    },
+    {
+      "who": "yun-jianwei",
+      "when": "2026-07-06",
+      "what": "共识评审 F003 安全护栏 + 底座决策：默认未确认即拦截、三档确认默认计划级批量+运行时高危单步、黑名单语义化 gate；新增提示注入(极高)等风险；建议 F002 AC2 修订与无障碍树增强；详见 docs/consensus-f003.md"
+    },
+    {
+      "who": "ye-zhiqiu",
+      "when": "2026-07-06",
+      "what": "落 F003+底座共识到权威 spec：F002 AC2 改『元素锚定+重试』并增无障碍树混合感知 AC5；F003 扩为 6 条 AC（默认未确认即拦截/语义化 gate/三档确认状态机/提示注入极高/隐私脱敏+本地默认/不可逆动作强提示）；F001 增 AC5 语义化动作类型；M2 承载无障碍树感知、M3 集安全增强；新增 SCREEN_MASK_SENSITIVE；task.json 增对应子任务"
+    },
+    {
+      "who": "yun-jianwei",
+      "when": "2026-07-06",
+      "what": "R1/M2·M3 安全收口共识设计(design note)→docs/sec-r1-design.md：R1 改 M4 根治(LLM 注入分类器+结构性信道隔离，复用 Config.make_llm_client，patterns 快筛先于 LLM 语义分类，命中→CONFIRM 绝不 ALLOW，sha256 缓存+mock 回退)；R2 扩面动词落桶(DESTRUCTIVE/DANGEROUS_SUBCOMMAND/RISKY_COMMAND)；R3 不可逆动作强提示格式(后果+回滚点)；定位 R2↔R3 在 git reset --hard 的张力(保持 R2 BLOCK)。仅设计未改 .py，待 lu-qianji 实现。"
+    },
+    {
+      "who": "ye-zhiqiu",
+      "when": "2026-07-07",
+      "what": "需求分析 F005 视觉坐标系统（仅规格）：docs/PRD-vision.md 完整 PRD + 五维验证（可行/完整/一致/可测✅、风险🟠中可控）；project-spec.json 新增 F005(status=planned, claimed_by 留空, depends_on[F001,F002]) 含子任务 F005.1-4 与 M5 里程碑。设计原则：不新增动作类型（沿用9种）、视觉派生动作原样过 guardrails、AC5 脱敏前置、AC4/R1 OCR 文字只作数据过 InjectionClassifier、dry_run lazy import 安全。未改任何 .py。"
+    },
+    {
+      "who": "lu-qianji",
+      "when": "2026-07-07",
+      "what": "F006 工作流引擎 Phase 1 实现完成：workflow.py（DAG数据结构+9约束校验）、variables.py（变量系统+类型检查+模板解析）、errors.py（错误策略处理器+指数退避）、compiler.py（AI编译器+Mock启发式）、engine.py（执行引擎+状态机+栈遍历+guardrails集成）、cli.py 扩展（--compile/--run-workflow/--workflow-demo）。新增 87 项测试全绿，verify_security_fixes.py 34 PASS 无回归。"
+    },
+    {
+      "who": "ye-zhiqiu",
+      "when": "2026-07-08",
+      "what": "需求盘点 + 落成待完善清单为正式 feature（path B 第一输入）：project-spec 新增 F012(画布增强)/F013(工程卫生治理)/F014(端口统一+mode both 修复)，状态 planned；校正 F008 规格漂移(React Flow→Vue3+LiteGraph) 并补 F007 acceptance_criteria(AC1-3)；新增 M9/M10 里程碑；task.json 刷新(补 F007-F011 + F012-F014)；起草 docs/process1-canvas-hardening.md(7类门禁模板)。交叉采纳 yun-jianwei 三道门禁(B4 spec漂移/B3 process1文档/B1 git)与 knowledge-base 反例。未改任何 .py。"
+    }
+  ],
+  "consensus_review": {
+    "reviewer": "yun-jianwei",
+    "when": "2026-07-06",
+    "on_feature": "F003",
+    "base_reconciliation": "computer-agent+PyAutoGUI 底座方向认可(enhance-not-refactor)；感知层须增强 Open-Interface 式『无障碍树+截图』混合观测以达鲁棒定位，呼应初版 consensus.md",
+    "decisions": {
+      "default_posture": "默认『未确认即拦截』(deny-unconfirmed)：黑名单动作硬拦截；其余默认需确认；仅白名单低危原语可跳过",
+      "confirm_tier_default": "默认『计划级批量确认(F004 展示计划时一次性批准) + 运行时高危动作单步确认』；跳过确认仅限白名单低危/只读动作",
+      "blacklist_strategy": "语义化 gate：基于 F001 结构化 action 类型拦截；黑名单作兜底正则，须覆盖跨平台等价物与绕过向量(dd/powershell -e/curl|sh/reg delete/DISKPART 等)"
+    },
+    "risks_added": [
+      "提示注入(prompt injection)：屏幕内容诱导越权 — 极高，spec 原未列，F003 须补防护",
+      "坐标漂移：F002 AC2『≤5px』在 DPI/多屏/窗口变动下不现实，需无障碍树锚定+重试，建议修订 AC2",
+      "规划幻觉(错误但合法的 action)：schema 校验拦不住，需 dry-run/确认+观测反馈"
+    ],
+    "gaps": [
+      "隐私：默认云端 LLM 致截图外发，F003 缺屏幕脱敏/本地默认选项，须补",
+      "F003 无『执行后撤销/回滚』，删除类不可逆动作须在确认阶段强提示"
+    ],
+    "incorporated_by": "ye-zhiqiu",
+    "incorporated_at": "2026-07-06",
+    "incorporated_status": "已落 spec：F002 AC2+AC5、F003 AC1-AC6、F001 AC5、M2/M3 承载增强、SCREEN_MASK_SENSITIVE"
+  },
+  "_path": "E:\\WorkBuddy\\自动系统\\project-spec.json",
+  "_agents": []
+}

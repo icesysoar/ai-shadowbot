@@ -1,0 +1,22 @@
+{
+  "id": "F011",
+  "status": "done",
+  "claimed_by": "lu-qianji",
+  "title": "流程模板市场 Phase 3",
+  "description": "工作流模板系统：保存为模板、从模板创建、分类浏览搜索。新增 templates 表，预置 4 个种子模板（每日邮件对账/网页截图存档/文件整理/系统监控）。保存模板时自动剔除 params 中的敏感字段（密码/token 等）。",
+  "depends_on": [
+    "F008"
+  ],
+  "acceptance_criteria": [
+    "AC1: 模板 CRUD 完整（列表/详情/分类筛选/搜索）",
+    "AC2: 从模板创建工作流（自动增加使用计数）",
+    "AC3: 工作流另存为模板（含分类/标签）",
+    "AC4: 保存模板时自动剔除敏感字段",
+    "AC5: 预置 4 个种子模板"
+  ],
+  "retry_count": 0,
+  "archive_note": "",
+  "_schema": "feature/v1",
+  "guide": {},
+  "updated_at": "2026-07-08 02:15:48"
+}

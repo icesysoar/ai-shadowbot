@@ -1,0 +1,20 @@
+{
+  "id": "F002",
+  "title": "桌面动作执行引擎 (鼠标/键盘/截图)",
+  "description": "动作原语执行层：封装 PyAutoGUI 实现 move/click/double_click/type/keypress/scroll/screenshot，支持窗口内坐标与跨平台；每个动作执行前回调 F003 护栏钩子；可选终端命令通道。M2 增强 Open-Interface 式『无障碍树 + 截图』混合观测，提升定位鲁棒性。",
+  "status": "done",
+  "claimed_by": "lu-qianji",
+  "acceptance_criteria": [
+    "AC1: 实现 move/click/double_click/type/keypress/scroll/screenshot 原语，在 Windows 上可运行（Mac 需辅助功能授权时给出提示）。",
+    "AC2: 定位采用『元素锚定命中 + 允许重试』策略（结合无障碍树/模板匹配/相对坐标），在 DPI 缩放、多屏、窗口位置/尺寸变动下能重新锚定目标元素并达到命中；取代原绝对坐标 ≤5px 硬性精度要求（见共识 CF5）。",
+    "AC3: 每个动作执行前/后回调护栏钩子（接入 F003），被拦截时动作不执行并记录原因。",
+    "AC4: 截图返回图像数据（PNG / Base64），可供 F001 直接消费。",
+    "AC5: (M2 增强) 感知层支持『无障碍树 + 截图』混合观测（Open-Interface 式）：无障碍树可用时优先用可访问性属性锚定元素，截图作兜底/校验，降低纯截图方案的定位脆弱性。"
+  ],
+  "depends_on": [],
+  "retry_count": 0,
+  "archive_note": "",
+  "_schema": "feature/v1",
+  "guide": {},
+  "updated_at": "2026-07-08 02:15:48"
+}

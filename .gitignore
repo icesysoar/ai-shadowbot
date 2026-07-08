@@ -1,0 +1,28 @@
+# ── Python ──
+__pycache__/
+*.pyc
+*.pyo
+
+# ── 依赖 ──
+node_modules/
+
+# ── 运行时数据（SQLite）──
+data/*.db
+data/*.db-*
+
+# ── 前端构建产物 ──
+dist/
+
+# ── 夹带 / 临时目录 ──
+auto-coding-agent/
+
+# ── 测试缓存 ──
+.pytest_cache/
+pytest-cache-files-*/
+
+# ── 系统 / IDE 临时 ──
+.trae/
+.workbuddy/
+
+# ── agent 内部快照 ──
+.autocode/snapshots/

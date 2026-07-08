@@ -1,0 +1,56 @@
+{
+  "id": "F013",
+  "title": "工程卫生与治理（task.json 刷新 / 临时文件清理 / git 初始化 / 规格一致性）",
+  "description": "收口项目工程卫生，为 L5 自驱（B1 安全边界 commit+push、soara-rollback）提供前提：①刷新 task.json 补 F007–F011（当前仅到 F006）②清理根目录 15 个 _* 临时文件（_diag.py/_qa*.txt/_demo*.txt/_diff_*.txt/_gatesrc.txt/_git.txt/_tj.txt/_vt.txt）+ .autocode 下 3 个（_chk.py/_chk.txt/_verify_fix.py）③评估移除 auto-coding-agent/ 夹带目录（含 43KB zip）④git init + .gitignore + 首提交 ⑤清理旧 React Flow 残留 static/reactflow.css|reactflow.umd.js|canvas.html（见 B4 规格漂移反例）⑥README 刷新（pytest 370 passed；补 Vue 画布说明）⑦project-spec F008 描述已校正（2026-07-08）。",
+  "status": "planned",
+  "claimed_by": "",
+  "depends_on": [],
+  "acceptance_criteria": [
+    "AC1: task.json 含 F001–F014 全部条目且状态/claimed_by 与 project-spec 一致。",
+    "AC2: 根目录及 .autocode 无 _* 临时文件；auto-coding-agent/ 已移除或移出仓库根。",
+    "AC3: 仓库已 git init 且完成首提交；.gitignore 覆盖 __pycache__/node_modules/.pytest_cache/data/*.db 等。",
+    "AC4: 旧 React Flow 静态文件（static/reactflow.*、static/canvas.html）已删除；仅 Vue3+LiteGraph 画布为权威基线。",
+    "AC5: README 与 project-spec F008 描述与现状一致（370 passed；Vue 画布）。"
+  ],
+  "subtasks": [
+    {
+      "id": "F013.1",
+      "title": "task.json 刷新",
+      "description": "补 T-F007..T-F011（done, claimed_by=lu-qianji）+ T-F012..T-F014（planned）。",
+      "depends_on": []
+    },
+    {
+      "id": "F013.2",
+      "title": "临时文件清理",
+      "description": "删除根 _*.py/_*.txt 与 .autocode/_*.py/_*.txt；评估 auto-coding-agent/ 去向。",
+      "depends_on": []
+    },
+    {
+      "id": "F013.3",
+      "title": "git 初始化",
+      "description": "git init + .gitignore + 首提交；先于任何代码改动以满足 l5bridge 安全边界。",
+      "depends_on": [
+        "F013.2"
+      ]
+    },
+    {
+      "id": "F013.4",
+      "title": "旧画布残留清理",
+      "description": "删除 static/reactflow.css|reactflow.umd.js|canvas.html。",
+      "depends_on": [
+        "F013.3"
+      ]
+    },
+    {
+      "id": "F013.5",
+      "title": "README/规格一致性",
+      "description": "README 刷新 370 passed + Vue 画布；确认 F008 描述已校正。",
+      "depends_on": []
+    }
+  ],
+  "retry_count": 0,
+  "archive_note": "",
+  "_schema": "feature/v1",
+  "guide": {},
+  "updated_at": "2026-07-08 02:15:48"
+}
