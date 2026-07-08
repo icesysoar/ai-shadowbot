@@ -230,6 +230,10 @@
 - F014.1 端口口径验证: l5_gateway.py 代码中已全部使用 PORT=8792，无 8787 残留
 - F014.2 --mode both 验证: MCP_PORT=8794 独立，HTTP:8792 + MCP:8794(streamable-http) 不冲突
 - 状态: F013/F014 status→done, claimed_by=sulin-yuan, task.json completed=13
+- 🔗 B1 完整闭环: git remote add + push → https://github.com/icesysoar/ai-shadowbot
+
+[Dash] 2026-07-08 02:15 - Saved via dashboard
+[Dash] 2026-07-08 02:15 - Saved via dashboard
 
 [Dash] 2026-07-08 02:15 - Saved via dashboard
 [Dash] 2026-07-08 02:15 - Saved via dashboard
