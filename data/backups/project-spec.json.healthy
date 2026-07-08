@@ -170,6 +170,11 @@
       "who": "ye-zhiqiu",
       "when": "2026-07-08",
       "what": "需求盘点 + 落成待完善清单为正式 feature（path B 第一输入）：project-spec 新增 F012(画布增强)/F013(工程卫生治理)/F014(端口统一+mode both 修复)，状态 planned；校正 F008 规格漂移(React Flow→Vue3+LiteGraph) 并补 F007 acceptance_criteria(AC1-3)；新增 M9/M10 里程碑；task.json 刷新(补 F007-F011 + F012-F014)；起草 docs/process1-canvas-hardening.md(7类门禁模板)。交叉采纳 yun-jianwei 三道门禁(B4 spec漂移/B3 process1文档/B1 git)与 knowledge-base 反例。未改任何 .py。"
+    },
+    {
+      "who": "sulin-yuan",
+      "when": "2026-07-08",
+      "what": "Phase A 工程卫生治理完成：F013.1-5 全子任务落实 (task.json验证/临时文件清理/git init+首提交/旧画布清理/README刷新)；F014.1 端口口径已验证(代码中已用8792)；F014.2 mode both 使用独立MCP_PORT=8794；F013/F014 状态→done。git 首提交 185 文件。"
     }
   ],
   "consensus_review": {

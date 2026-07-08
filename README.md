@@ -1,9 +1,28 @@
 # AI 版影刀 · ai-shadowbot
 
-自然语言驱动电脑操作的 Python 工具（MVP）。
+> 自然语言驱动电脑操作的 RPA / Computer-Use 平台。v0.1.1
 
-用户用聊天说"要做什么"，AI 把指令编译为鼠标/键盘/截图/应用动作并自动执行。
+用户用聊天说"要做什么"，AI 编译为结构化工作流并自动执行。
 架构自下而上五层：**观测层 → 执行引擎 → 规划层 → 护栏层 → 交互层**。
+
+## 功能矩阵 (F001-F014)
+
+| ID | 功能 | 状态 |
+|----|------|------|
+| F001 | 自然语言解析与动作规划 (LLM function calling) | ✅ |
+| F002 | 桌面动作执行引擎 (鼠标/键盘/截图) | ✅ |
+| F003 | 安全护栏与人工确认机制 | ✅ |
+| F004 | CLI / 聊天交互入口 | ✅ |
+| F005 | 视觉坐标系统 (多模态 LLM 定位) | ✅ |
+| F006 | 工作流引擎 (DAG 编译 + 执行) | ✅ |
+| F007 | L5 跨 AI 触发网关 (HTTP+MCP) | ✅ |
+| F008 | 可视化画布 (Vue3 + LiteGraph.js) | ✅ |
+| F009 | 定时调度器 (cron/interval) | ✅ |
+| F010 | 执行日志回溯 (节点级日志+截图) | ✅ |
+| F011 | 流程模板市场 (4 种子模板) | ✅ |
+| F012 | 画布增强 (拖拽放置/面板/DPR) | ⬜ 计划中 |
+| F013 | 工程卫生与治理 | ✅ 已就绪 |
+| F014 | 端口统一 + --mode both 修复 | ✅ 已就绪 |
 
 ## 安装
 
@@ -11,7 +30,7 @@
 pip install -r requirements.txt
 ```
 
-`pyautogui` / `Pillow` 仅真实执行模式需要；**dry\_run 演示与 pytest 测试无需安装**。
+`pyautogui` / `Pillow` 仅真实执行模式需要；**dry_run 演示与 pytest 测试无需安装**。
 
 ## 配置（环境变量）
 
@@ -55,10 +74,28 @@ python -m ai\_shadowbot.cli --dry-run --mock --confirm skip
 python -m ai\_shadowbot.cli --real --confirm single
 ```
 
+## 启动 Web 画布（推荐）
+
+```bash
+# 方式一：一键启动（自动清理端口 + 打开浏览器）
+python -m ai_shadowbot.run_server
+
+# 方式二：双击 launcher_gui.py（图形启动器）
+
+# 方式三：命令行
+python -m ai_shadowbot.l5_gateway --mode http --port 8792
+# 浏览器访问 http://localhost:8792/
+```
+
 ## 测试
 
 ```bash
-pytest            # 40 个用例，覆盖 planner/guardrails/executor(dry\_run)
+pytest            # 370+ passed，17 测试文件，覆盖全部核心模块
+```
+
+独立安全验证：
+```bash
+python verify_security_fixes.py   # 34 PASS（注入防护/黑名单/脱敏/急停）
 ```
 
 ## 动作 Schema（原子动作词汇表）
@@ -79,25 +116,55 @@ pytest            # 40 个用例，覆盖 planner/guardrails/executor(dry\_run)
 
 ## 安全设计（护栏层 F003）
 
-* **白名单**：动作类型只能是上述原子动作，未授权类型直接拦截。
-* **破坏性黑名单**：`rm -rf` / `format` / `shutdown` / `sudo` / `dd` 等硬拦截，永不放行。
-* **危险动作二次确认**：终端/系统设置类（`cmd`/`powershell`/`注册表`…）需人工确认。
-* **三档确认策略**：`skip`（跳过）/ `single`（单步）/ `batch`（批量确认一次）。
+* **白名单**：动作类型只能是原子动作，未授权类型直接拦截。
+* **语义化黑名单**：`rm -rf` / `format` / `shutdown` / `dd` / `powershell -e` / `curl|sh` / `reg delete` 等硬拦截，命令归一化+动词集合抗绕过。
+* **LLM 语义注入分类器**：提示注入（"忽略指令…"）→ CONFIRM 不自动放行，信道隔离保数据不混指令。
+* **三档确认策略**：`skip`（跳过）/ `single`（单步，默认）/ `batch`（批量确认一次）。
+* **不可逆动作强提示**：删除/发送/支付等含后果+回滚点。
+* **隐私脱敏**：截图外发前敏感区打码（SCREEN_MASK_SENSITIVE 默认开）。
 * **全局紧急停止**：ESC / Ctrl+C 触发后队列立即中止。
-* **dry\_run 铁律**：演练模式绝不 import pyautogui、绝不真实移动鼠标。
+* **dry_run 铁律**：演练模式绝不 import pyautogui、绝不真实移动鼠标。
 
 ## 模块结构
 
 ```
-ai\_shadowbot/
-├── \_\_init\_\_.py
-├── actions.py      # 原子动作词汇表 + schema 强校验（共享事实来源）
-├── config.py       # 模型配置（环境变量 + mock 开关）
-├── planner.py      # 规划层：LLM function calling（F001）
-├── executor.py     # 执行引擎：PyAutoGUI + dry\_run（F002）
-├── observer.py     # 观测层：截图 → base64（F002）
-├── guardrails.py   # 护栏层：白/黑名单 + 二次确认（F003）
-├── cli.py          # CLI 聊天入口（F004）
-└── tests/          # test\_planner / test\_guardrails / test\_executor\_dryrun
+ai_shadowbot/
+├── __init__.py
+├── actions.py              # 原子动作词汇表 + schema 强校验
+├── config.py               # 模型配置（环境变量 + mock 开关）
+├── planner.py              # 规划层：LLM function calling（F001）
+├── executor.py             # 执行引擎：PyAutoGUI + dry_run（F002）
+├── observer.py             # 观测层：截图脱敏 + base64（F002）
+├── guardrails.py           # 护栏层：白/黑名单 + 语义gate（F003）
+├── injection_classifier.py # 提示注入 LLM 语义分类器（R1/M4）
+├── cli.py                  # CLI 聊天入口（F004）
+├── vision.py               # 视觉坐标系统（F005）
+├── workflow.py             # 工作流 DAG 数据结构（F006）
+├── compiler.py             # AI 编译器：自然语言→DAG（F006）
+├── engine.py               # DAG 执行引擎（F006）
+├── variables.py            # 变量系统：{{variables.xxx}} 模板
+├── errors.py               # 错误策略处理器
+├── l5_gateway.py           # L5 网关：FastAPI + FastMCP（F007）
+├── run_server.py            # 启动助手（F007）
+├── canvas_api.py           # 画布后端：SQLite CRUD（F008）
+├── scheduler.py            # 定时调度器（F009）
+├── frontend/               # Vue3 + LiteGraph.js 画布前端（F008）
+│   ├── src/
+│   │   ├── App.vue         # 主布局
+│   │   ├── components/GraphCanvas.vue  # 画布封装
+│   │   ├── nodes/specs.ts  # 14 节点规格定义
+│   │   └── ...
+│   └── dist/               # 构建产物
+└── tests/                  # 17 测试文件，370+用例
 ```
+
+## 画布节点清单（14 种）
+
+| 分类 | 节点 | 类型 |
+|------|------|------|
+| 控制 | 开始、结束、条件判断、循环 | start/end/condition/loop |
+| 系统 | 等待、截图 | wait/atomic |
+| 鼠标 | 点击、双击、右键单击、滚动 | atomic |
+| 键盘 | 输入文本、按键 | atomic |
+| 应用 | 打开应用 | atomic |
 

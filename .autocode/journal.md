@@ -221,5 +221,15 @@
 - C 仅分析规划不进自驱
 **推荐 B（并同步补 B1/B3 前置）**：A 当前被 B1/B2/B3 三道致命门禁 🛑 STOP，不可行；而"完善所有功能"尚未 specs 化(F001-F011 已 done)，盲进 Go 会自驱去完善不存在的需求且可能破绿基线。故先用 B 在对话内把待完善清单落成 spec(F012+)+填流程1+补 git；bridge 就绪后再评估升 A。呼应 wiki L5 范式：绿基线之上外科式增强、零破坏现测。若主理人明确"只规划不改动"则 C。
 
+🔧 [2026-07-08] [苏临渊] Phase A 工程卫生治理完成 — F013+F014 done
+- F013.1 task.json 验证: 14/14 条目完美(F001-F011 done, F012 planned, F013-F014 done)
+- F013.2 临时文件清理: 根目录 + .autocode 无 _* 残留；auto-coding-agent/ 不存在
+- F013.3 git init + 首提交: 185 文件, .gitignore 覆盖 __pycache__/node_modules/data/*.db/dist/
+- F013.4 旧画布清理: static/ 已不存在，仅 Vue3+LiteGraph 为权威基线
+- F013.5 README 刷新: 补功能矩阵表、画布节点清单、启动方式、测试数 370+/安全验证 34 PASS
+- F014.1 端口口径验证: l5_gateway.py 代码中已全部使用 PORT=8792，无 8787 残留
+- F014.2 --mode both 验证: MCP_PORT=8794 独立，HTTP:8792 + MCP:8794(streamable-http) 不冲突
+- 状态: F013/F014 status→done, claimed_by=sulin-yuan, task.json completed=13
+
 [Dash] 2026-07-08 02:15 - Saved via dashboard
 [Dash] 2026-07-08 02:15 - Saved via dashboard
