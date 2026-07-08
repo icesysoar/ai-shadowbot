@@ -242,4 +242,14 @@ export const api = {
       method: 'POST',
       body: JSON.stringify(data),
     }),
+
+  // ---- 导入/导出 (F021) ----
+  exportWorkflow: (id: string) =>
+    req<{ id: string; name: string; flow: Flow; exported_at: string }>(`/api/workflows/${id}/export`),
+
+  importWorkflow: (data: { name?: string; flow: Flow }) =>
+    req<{ id: string; success: boolean }>('/api/workflows/import', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
 }

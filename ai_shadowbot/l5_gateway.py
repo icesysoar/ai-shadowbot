@@ -499,6 +499,21 @@ def build_app():
             raise HTTPException(status_code=404, detail="template not found")
         return {"success": True}
 
+    # ---- F021 导入/导出 ----
+    @app.get("/api/workflows/{wf_id}/export")
+    def export_workflow(wf_id: str):
+        data = _canvas_api.export_workflow(wf_id)
+        if data is None:
+            raise HTTPException(status_code=404, detail="workflow not found")
+        return data
+
+    @app.post("/api/workflows/import")
+    def import_workflow(body: Dict[str, Any] = Body(...)):
+        wf_id = _canvas_api.import_workflow(body)
+        if wf_id is None:
+            raise HTTPException(status_code=400, detail="导入失败")
+        return {"id": wf_id, "success": True}
+
     # ------------------------------------------------------------------
     # 启动调度器
     # ------------------------------------------------------------------

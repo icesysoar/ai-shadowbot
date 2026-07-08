@@ -1280,3 +1280,25 @@ class CanvasAPI:
             "mode": mode,
             "execution": execution_data,
         }
+
+    # ---- F021 导入/导出 ----
+    def export_workflow(self, wf_id: str) -> Optional[Dict[str, Any]]:
+        """导出工作流为可移植 JSON。"""
+        wf = self.get_workflow(wf_id)
+        if not wf:
+            return None
+        flow = wf.get("flow_json")
+        if isinstance(flow, str):
+            flow = json.loads(flow)
+        return {
+            "id": wf["id"],
+            "name": wf["name"],
+            "flow": flow,
+            "exported_at": datetime.now().isoformat(),
+        }
+
+    def import_workflow(self, data: Dict[str, Any]) -> Optional[str]:
+        """从 JSON 导入工作流，返回新 wf_id。"""
+        name = data.get("name", "导入的工作流")
+        flow = data.get("flow", {})
+        return self.create_workflow({"name": name, "flow": flow})

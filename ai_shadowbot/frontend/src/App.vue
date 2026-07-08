@@ -8,6 +8,9 @@
       <button @click="newWorkflow">新建</button>
       <button @click="save">保存</button>
       <button @click="loadDialog">加载</button>
+      <button @click="doExport" :disabled="!currentId">导出</button>
+      <button @click="triggerImport">导入</button>
+      <input ref="importInput" type="file" accept=".json" style="display:none" @change="doImport" />
       <button class="primary" :disabled="executing" @click="execute('dry_run')">执行(演练)</button>
       <button class="danger" :disabled="executing" @click="execute('real')">执行(真实)</button>
       <button @click="clearStatus">清状态</button>
@@ -54,6 +57,9 @@
         </div>
 
         <div class="tab-content">
+          <!-- 概览面板 -->
+          <DashboardPanel v-if="activeTab === 'dashboard'" />
+
           <!-- 调度面板 -->
           <SchedulerPanel v-if="activeTab === 'scheduler'" />
 
@@ -68,6 +74,12 @@
             v-if="activeTab === 'templates'"
             :current-workflow-id="currentId"
             @use-template="onUseTemplate"
+          />
+
+          <!-- 变量面板 -->
+          <VariablePanel
+            v-if="activeTab === 'variables'"
+            :get-flow="() => canvasRef?.getFlow()"
           />
 
           <!-- AI 编译 + 属性 + 状态面板（原有面板合并） -->
@@ -144,9 +156,11 @@
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted } from 'vue'
 import GraphCanvas, { type NodeSnapshot } from './components/GraphCanvas.vue'
+import DashboardPanel from './components/DashboardPanel.vue'
 import SchedulerPanel from './components/SchedulerPanel.vue'
 import LogPanel from './components/LogPanel.vue'
 import TemplatePanel from './components/TemplatePanel.vue'
+import VariablePanel from './components/VariablePanel.vue'
 import { NODE_SPECS } from './nodes/specs'
 import { api, type NodeLog, type PaletteNode } from './api-service'
 import type { Flow } from './converters'
@@ -162,12 +176,15 @@ const currentId = ref<string | null>(null)
 const showLoad = ref(false)
 const wfList = ref<{ id: string; name: string }[]>([])
 const toast = ref('')
+const importInput = ref<HTMLInputElement | null>(null)
 
 // ---- Tab 系统 ----
 const tabs = [
+  { id: 'dashboard', label: '概览' },
   { id: 'scheduler', label: '调度' },
   { id: 'logs', label: '日志' },
   { id: 'templates', label: '模板' },
+  { id: 'variables', label: '变量' },
   { id: 'properties', label: '属性' },
 ]
 const activeTab = ref('properties')
@@ -373,6 +390,38 @@ async function execute(mode: 'dry_run' | 'real') {
 function clearStatus() {
   canvasRef.value?.clearStatus()
   logs.value = []
+}
+
+// ---- F021 导入/导出 ----
+async function doExport() {
+  if (!currentId.value) return
+  try {
+    const data = await api.exportWorkflow(currentId.value)
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url; a.download = `${data.name || 'workflow'}.json`
+    a.click(); URL.revokeObjectURL(url)
+    showToast('已导出：' + data.name)
+  } catch (err: any) { showToast('导出失败：' + err.message) }
+}
+function triggerImport() { importInput.value?.click() }
+async function doImport(e: Event) {
+  const file = (e.target as HTMLInputElement).files?.[0]
+  if (!file) return
+  try {
+    const text = await file.text()
+    const data = JSON.parse(text)
+    const res = await api.importWorkflow(data)
+    if (res.id) {
+      const wf = await api.getWorkflow(res.id)
+      canvasRef.value?.loadFlow(wf.flow)
+      canvasRef.value?.clearStatus()
+      currentId.value = wf.id; workflowName.value = wf.name; logs.value = []
+      showToast('已导入：' + wf.name)
+    }
+  } catch (err: any) { showToast('导入失败：' + err.message) }
+  (e.target as HTMLInputElement).value = ''
 }
 
 function badge(s: string) {

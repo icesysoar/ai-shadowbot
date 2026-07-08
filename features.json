@@ -456,44 +456,6 @@
       "_schema": "feature/v1",
       "guide": {},
       "updated_at": "2026-07-08 02:15:48"
-    },
-    {
-      "id": "F020",
-      "title": "变量可视化管理面板",
-      "status": "in_progress",
-      "claimed_by": "lin-zhiyu",
-      "description": "变量面板: 展示/添加/编辑全局变量。VariablePanel.vue。",
-      "depends_on": [
-        "F008",
-        "F012"
-      ],
-      "_schema": "feature/v1",
-      "updated_at": "2026-07-08"
-    },
-    {
-      "id": "F021",
-      "title": "流程导入/导出",
-      "status": "in_progress",
-      "claimed_by": "lin-zhiyu",
-      "description": "JSON导入导出。工具栏按钮+canvas_api端点。",
-      "depends_on": [
-        "F008"
-      ],
-      "_schema": "feature/v1",
-      "updated_at": "2026-07-08"
-    },
-    {
-      "id": "F024",
-      "title": "执行报告/统计面板",
-      "status": "in_progress",
-      "claimed_by": "lin-zhiyu",
-      "description": "Dashboard: 统计卡片+7天趋势+最近执行。",
-      "depends_on": [
-        "F010",
-        "F008"
-      ],
-      "_schema": "feature/v1",
-      "updated_at": "2026-07-08"
     }
   ]
 }
