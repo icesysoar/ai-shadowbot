@@ -458,49 +458,67 @@
       "updated_at": "2026-07-08 02:15:48"
     },
     {
-      "id": "F015",
-      "title": "浏览器自动化节点",
-      "status": "done",
+      "id": "F016",
+      "title": "Excel/CSV操作节点",
+      "status": "in_progress",
       "claimed_by": "lu-qianji",
-      "description": "集成Soara_browser Bridge → 6种浏览器原子操作(navigate/click/type/screenshot/wait/scroll)",
+      "description": "Excel/CSV读写操作: read/write/merge/filter。基于openpyxl+csv标准库。",
       "depends_on": [
         "F002",
         "F006"
       ],
-      "acceptance_criteria": [
-        "AC1-AC5全部通过"
-      ],
-      "subtasks": [
-        {
-          "id": "F015.1",
-          "title": "BrowserWorker客户端",
-          "depends_on": []
-        },
-        {
-          "id": "F015.2",
-          "title": "前端节点+调色板",
-          "depends_on": []
-        },
-        {
-          "id": "F015.3",
-          "title": "引擎集成+compiler增强",
-          "depends_on": [
-            "F015.1"
-          ]
-        },
-        {
-          "id": "F015.4",
-          "title": "浏览器节点测试(42个)",
-          "depends_on": [
-            "F015.1",
-            "F015.3"
-          ]
-        }
-      ],
+      "acceptance_criteria": [],
+      "subtasks": [],
       "retry_count": 0,
-      "archive_note": "",
       "_schema": "feature/v1",
-      "guide": {},
+      "updated_at": "2026-07-08 23:00"
+    },
+    {
+      "id": "F017",
+      "title": "HTTP/API请求节点",
+      "status": "in_progress",
+      "claimed_by": "lu-qianji",
+      "description": "HTTP请求操作: GET/POST/PUT/DELETE with headers/body。基于requests库。",
+      "depends_on": [
+        "F002",
+        "F006"
+      ],
+      "acceptance_criteria": [],
+      "subtasks": [],
+      "retry_count": 0,
+      "_schema": "feature/v1",
+      "updated_at": "2026-07-08 23:00"
+    },
+    {
+      "id": "F019",
+      "title": "文件系统操作节点",
+      "status": "in_progress",
+      "claimed_by": "lu-qianji",
+      "description": "文件系统操作: read/write/delete/copy/move/list/mkdir/exists。基于Python stdlib。",
+      "depends_on": [
+        "F002",
+        "F006"
+      ],
+      "acceptance_criteria": [],
+      "subtasks": [],
+      "retry_count": 0,
+      "_schema": "feature/v1",
+      "updated_at": "2026-07-08 23:00"
+    },
+    {
+      "id": "F023",
+      "title": "画布撤销/重做",
+      "status": "in_progress",
+      "claimed_by": "lin-zhiyu",
+      "description": "Ctrl+Z/Y 撤销重做。graph.serialize()快照栈，最大50步。",
+      "depends_on": [
+        "F008",
+        "F012"
+      ],
+      "acceptance_criteria": [],
+      "subtasks": [],
+      "retry_count": 0,
+      "_schema": "feature/v1",
       "updated_at": "2026-07-08 23:00"
     }
   ]

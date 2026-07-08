@@ -2,7 +2,7 @@
   "_source": ".autocode/wiki/tasks/*.md",
   "_note": "自动从 Wiki 重建，请编辑 wiki/tasks/*.md",
   "project": "自动系统",
-  "total_tasks": 14,
+  "total_tasks": 18,
   "completed": 15,
   "updated_at": "2026-07-08 23:00",
   "tasks": [
@@ -202,6 +202,66 @@
       "validation_type": "manual",
       "depends_on": [
         "F007"
+      ],
+      "completed_at": ""
+    },
+    {
+      "id": "T-F016",
+      "title": "Excel/CSV操作节点",
+      "feature_id": "F016",
+      "status": "in_progress",
+      "priority": "P1",
+      "claimed_by": "lu-qianji",
+      "passes": false,
+      "validation_type": "manual",
+      "depends_on": [
+        "F002",
+        "F006"
+      ],
+      "completed_at": ""
+    },
+    {
+      "id": "T-F017",
+      "title": "HTTP/API请求节点",
+      "feature_id": "F017",
+      "status": "in_progress",
+      "priority": "P1",
+      "claimed_by": "lu-qianji",
+      "passes": false,
+      "validation_type": "manual",
+      "depends_on": [
+        "F002",
+        "F006"
+      ],
+      "completed_at": ""
+    },
+    {
+      "id": "T-F019",
+      "title": "文件系统操作节点",
+      "feature_id": "F019",
+      "status": "in_progress",
+      "priority": "P1",
+      "claimed_by": "lu-qianji",
+      "passes": false,
+      "validation_type": "manual",
+      "depends_on": [
+        "F002",
+        "F006"
+      ],
+      "completed_at": ""
+    },
+    {
+      "id": "T-F023",
+      "title": "画布撤销/重做",
+      "feature_id": "F023",
+      "status": "in_progress",
+      "priority": "P2",
+      "claimed_by": "lin-zhiyu",
+      "passes": false,
+      "validation_type": "manual",
+      "depends_on": [
+        "F008",
+        "F012"
       ],
       "completed_at": ""
     }
