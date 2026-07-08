@@ -52,6 +52,74 @@ let graphCanvas: LGraphCanvas | null = null
 let ro: ResizeObserver | null = null
 let rafId = 0
 
+// ---- 撤销/重做 (F023) ----
+const MAX_STACK = 50
+const undoStack: any[] = []
+const redoStack: any[] = []
+let undoIgnoreNext = false // 撤销/重做后跳过下一次 pushSnapshot
+
+function pushSnapshot() {
+  if (!graph) return
+  if (undoIgnoreNext) {
+    undoIgnoreNext = false
+    return
+  }
+  undoStack.push(graph.serialize())
+  if (undoStack.length > MAX_STACK) undoStack.shift()
+  redoStack.length = 0 // 新操作清空重做栈
+}
+
+function undo() {
+  if (!graph || !graphCanvas || undoStack.length === 0) return
+  // 当前状态入重做栈
+  redoStack.push(graph.serialize())
+  const prev = undoStack.pop()!
+  undoIgnoreNext = true
+  graph.configure(prev)
+  graphCanvas.setDirty(true, true)
+  scheduleFit()
+  updateStatus()
+}
+
+function redo() {
+  if (!graph || !graphCanvas || redoStack.length === 0) return
+  // 当前状态入撤销栈
+  undoStack.push(graph.serialize())
+  const next = redoStack.pop()!
+  undoIgnoreNext = true
+  graph.configure(next)
+  graphCanvas.setDirty(true, true)
+  scheduleFit()
+  updateStatus()
+}
+
+function onKeyDown(e: KeyboardEvent) {
+  // 仅当画布 wrapper 可见时生效
+  if (!wrapperRef.value || wrapperRef.value.offsetParent === null) return
+  // 如果焦点在 input/textarea/select 中，不拦截
+  const tag = (e.target as HTMLElement)?.tagName
+  if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return
+
+  const ctrl = e.ctrlKey || e.metaKey
+  if (!ctrl) return
+
+  if (e.key === 'z' || e.key === 'Z') {
+    if (e.shiftKey) {
+      // Ctrl+Shift+Z / Cmd+Shift+Z → redo
+      e.preventDefault()
+      redo()
+    } else {
+      // Ctrl+Z / Cmd+Z → undo
+      e.preventDefault()
+      undo()
+    }
+  } else if (e.key === 'y' || e.key === 'Y') {
+    // Ctrl+Y → redo
+    e.preventDefault()
+    redo()
+  }
+}
+
 function snapshot(node: any): NodeSnapshot {
   return {
     id: String(node.id),
@@ -160,6 +228,7 @@ function addNodeAtPos(kind: string, clientX: number, clientY: number): void {
   }
   graph.add(node)
   updateStatus()
+  pushSnapshot()
 }
 
 onMounted(() => {
@@ -228,11 +297,15 @@ onMounted(() => {
   const onDprChange = () => scheduleFit()
   window.matchMedia(`(resolution: ${window.devicePixelRatio}dppx)`).addEventListener('change', onDprChange)
 
+  // 撤销/重做快捷键
+  document.addEventListener('keydown', onKeyDown)
+
   ;(window as any).alphaGraph = graph
   ;(window as any).alphaGraphCanvas = graphCanvas
 })
 
 onBeforeUnmount(() => {
+  document.removeEventListener('keydown', onKeyDown)
   if (rafId) cancelAnimationFrame(rafId)
   ro?.disconnect()
   if (graphCanvas) {
@@ -257,6 +330,7 @@ function addNode(kind: string): void {
   node.pos = [Math.round(center.x - 100), Math.round(center.y - 30)]
   graph.add(node)
   updateStatus()
+  pushSnapshot()
 }
 
 function loadFlow(flow: Flow): void {
@@ -264,6 +338,7 @@ function loadFlow(flow: Flow): void {
   flowToGraph(graph, flow)
   graphCanvas?.setDirty(true)
   updateStatus()
+  pushSnapshot()
 }
 
 function getFlow(): Flow {
@@ -273,6 +348,7 @@ function getFlow(): Flow {
 function clear(): void {
   graph?.clear()
   updateStatus()
+  pushSnapshot()
 }
 
 function updateNode(id: string, patch: { label?: string; widgets?: Record<string, any> }): void {
@@ -285,6 +361,7 @@ function updateNode(id: string, patch: { label?: string; widgets?: Record<string
     })
   }
   node.setDirtyCanvas(true, true)
+  pushSnapshot()
 }
 
 // 执行后状态着色
@@ -316,7 +393,7 @@ function clearStatus(): void {
   graphCanvas?.setDirty(true)
 }
 
-defineExpose({ addNode, addNodeAtPos, loadFlow, getFlow, clear, updateNode, applyStatus, clearStatus })
+defineExpose({ addNode, addNodeAtPos, loadFlow, getFlow, clear, updateNode, applyStatus, clearStatus, undo, redo })
 </script>
 
 <style scoped>
