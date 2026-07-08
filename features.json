@@ -456,6 +456,86 @@
       "_schema": "feature/v1",
       "guide": {},
       "updated_at": "2026-07-08 02:15:48"
+    },
+    {
+      "id": "F015",
+      "title": "F015",
+      "status": "done",
+      "claimed_by": "lu-qianji",
+      "_schema": "feature/v1",
+      "updated_at": "2026-07-08",
+      "depends_on": [],
+      "acceptance_criteria": []
+    },
+    {
+      "id": "F016",
+      "title": "F016",
+      "status": "done",
+      "claimed_by": "lu-qianji",
+      "_schema": "feature/v1",
+      "updated_at": "2026-07-08",
+      "depends_on": [],
+      "acceptance_criteria": []
+    },
+    {
+      "id": "F017",
+      "title": "F017",
+      "status": "done",
+      "claimed_by": "lu-qianji",
+      "_schema": "feature/v1",
+      "updated_at": "2026-07-08",
+      "depends_on": [],
+      "acceptance_criteria": []
+    },
+    {
+      "id": "F019",
+      "title": "F019",
+      "status": "done",
+      "claimed_by": "lu-qianji",
+      "_schema": "feature/v1",
+      "updated_at": "2026-07-08",
+      "depends_on": [],
+      "acceptance_criteria": []
+    },
+    {
+      "id": "F020",
+      "title": "F020",
+      "status": "done",
+      "claimed_by": "lin-zhiyu",
+      "_schema": "feature/v1",
+      "updated_at": "2026-07-08",
+      "depends_on": [],
+      "acceptance_criteria": []
+    },
+    {
+      "id": "F021",
+      "title": "F021",
+      "status": "done",
+      "claimed_by": "lin-zhiyu",
+      "_schema": "feature/v1",
+      "updated_at": "2026-07-08",
+      "depends_on": [],
+      "acceptance_criteria": []
+    },
+    {
+      "id": "F023",
+      "title": "F023",
+      "status": "done",
+      "claimed_by": "lin-zhiyu",
+      "_schema": "feature/v1",
+      "updated_at": "2026-07-08",
+      "depends_on": [],
+      "acceptance_criteria": []
+    },
+    {
+      "id": "F024",
+      "title": "F024",
+      "status": "done",
+      "claimed_by": "lin-zhiyu",
+      "_schema": "feature/v1",
+      "updated_at": "2026-07-08",
+      "depends_on": [],
+      "acceptance_criteria": []
     }
   ]
 }

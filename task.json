@@ -2,8 +2,8 @@
   "_source": ".autocode/wiki/tasks/*.md",
   "_note": "自动从 Wiki 重建，请编辑 wiki/tasks/*.md",
   "project": "自动系统",
-  "total_tasks": 14,
-  "completed": 14,
+  "total_tasks": 22,
+  "completed": 22,
   "updated_at": "2026-07-08 23:20",
   "tasks": [
     {
@@ -203,6 +203,94 @@
       "depends_on": [
         "F007"
       ],
+      "completed_at": ""
+    },
+    {
+      "id": "T-F015",
+      "title": "T-F015",
+      "feature_id": "T-F015",
+      "status": "done",
+      "priority": "P1",
+      "claimed_by": "",
+      "passes": false,
+      "depends_on": [],
+      "completed_at": ""
+    },
+    {
+      "id": "T-F016",
+      "title": "T-F016",
+      "feature_id": "T-F016",
+      "status": "done",
+      "priority": "P1",
+      "claimed_by": "",
+      "passes": false,
+      "depends_on": [],
+      "completed_at": ""
+    },
+    {
+      "id": "T-F017",
+      "title": "T-F017",
+      "feature_id": "T-F017",
+      "status": "done",
+      "priority": "P1",
+      "claimed_by": "",
+      "passes": false,
+      "depends_on": [],
+      "completed_at": ""
+    },
+    {
+      "id": "T-F019",
+      "title": "T-F019",
+      "feature_id": "T-F019",
+      "status": "done",
+      "priority": "P1",
+      "claimed_by": "",
+      "passes": false,
+      "depends_on": [],
+      "completed_at": ""
+    },
+    {
+      "id": "T-F020",
+      "title": "T-F020",
+      "feature_id": "T-F020",
+      "status": "done",
+      "priority": "P1",
+      "claimed_by": "",
+      "passes": false,
+      "depends_on": [],
+      "completed_at": ""
+    },
+    {
+      "id": "T-F021",
+      "title": "T-F021",
+      "feature_id": "T-F021",
+      "status": "done",
+      "priority": "P1",
+      "claimed_by": "",
+      "passes": false,
+      "depends_on": [],
+      "completed_at": ""
+    },
+    {
+      "id": "T-F023",
+      "title": "T-F023",
+      "feature_id": "T-F023",
+      "status": "done",
+      "priority": "P1",
+      "claimed_by": "",
+      "passes": false,
+      "depends_on": [],
+      "completed_at": ""
+    },
+    {
+      "id": "T-F024",
+      "title": "T-F024",
+      "feature_id": "T-F024",
+      "status": "done",
+      "priority": "P1",
+      "claimed_by": "",
+      "passes": false,
+      "depends_on": [],
       "completed_at": ""
     }
   ]
