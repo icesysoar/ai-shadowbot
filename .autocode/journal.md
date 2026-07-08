@@ -246,3 +246,8 @@
 - F012.5 combo 对接：palette API → 按 kind 匹配 options → spec 内置 fallback
 - F012.6 DPR 优化：ensureDPR canvas 物理像素 + setTransform + resizeCanvas 二次确保 + matchMedia DPR 监听
 - 文件：GraphCanvas.vue(重写)/api-service.ts(重写)/SchedulerPanel.vue(新建)/LogPanel.vue(新建)/TemplatePanel.vue(新建)/App.vue(重写) + task.json/project-spec.json 更新
+🚩 [2026-07-08] [苏临渊] Phase B 全部完成 — 14/14 features done 🎉
+- F012 画布增强 6 项: 拖拽放置/调度面板/日志面板/模板面板/palette combo/DPR
+- 林织羽交付: 新增 SchedulerPanel/LogPanel/TemplatePanel; 重写 App.vue/GraphCanvas/api-service.ts
+- npm build 32 modules ✅; F013/F014 restored → 14/14 done
+- task.json completed=14/14, features.json 14/14 done

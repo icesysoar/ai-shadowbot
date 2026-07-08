@@ -5,7 +5,7 @@
     "version": "0.1.1",
     "created_by": "ye-zhiqiu",
     "created_at": "2026-07-06",
-    "updated_by": "ye-zhiqiu",
+    "updated_by": "lin-zhiyu",
     "updated_at": "2026-07-08",
     "tech_stack": {
       "language": "Python >= 3.10",
@@ -185,6 +185,11 @@
       "who": "lin-zhiyu",
       "when": "2026-07-08",
       "what": "F012 画布增强 6 子任务全部完成：(1)节点拖拽放置 HTML5 drag/drop + GraphCanvas.addNodeAtPos + 点击兜底；(2)调度面板 SchedulerPanel.vue 对接 /api/scheduler/triggers CRUD+toggle+状态；(3)日志面板 LogPanel.vue 对接 /api/workflows/{id}/runs-extended + /api/execution/{run_id}/detail + 截图弹窗；(4)模板面板 TemplatePanel.vue 对接 /api/templates CRUD + 搜索/分类/使用/另存；(5)属性面板 combo 对接后端 /api/palette → 按 kind 匹配 options → spec 内置 fallback；(6)DPR 精细优化 ensureDPR() 强制 canvas.width/height = clientWidth*Height * devicePixelRatio + ctx.setTransform + resizeCanvas 后二次确保 + matchMedia 监听 DPR 变化。npm run build 通过（32 modules, 8.76s）"
+    },
+    {
+      "who": "lin-zhiyu",
+      "when": "2026-07-08",
+      "what": "F012 画布增强 6 项子任务全部完成: 拖拽放置/调度面板/日志面板/模板面板/palette combo对接/DPR优化。新增 3 组件(SchedulerPanel/LogPanel/TemplatePanel)，重写 App.vue(tab系统)/GraphCanvas(drop+DPR)/api-service.ts。npm run build 32 modules 通过。"
     }
   ],
   "consensus_review": {
