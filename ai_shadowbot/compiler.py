@@ -101,7 +101,8 @@ COMPILE_WORKFLOW_TOOL = {
 COMPILE_SYSTEM_PROMPT = (
     "你是一个 AI 工作流编译器。请将用户的自然语言需求编译为一个结构化工作流 DAG。\n"
     "工作流由节点组成，节点类型包括：start(开始), end(结束), atomic(原子动作: click/double_click/"
-    "right_click/type_text/key_press/screenshot/wait/open_app/scroll), "
+    "right_click/type_text/key_press/screenshot/wait/open_app/scroll/"
+    "browser_navigate/browser_click/browser_type/browser_screenshot/browser_wait/browser_scroll/browser_extract_text), "
     "condition(条件判断, 包含 branches 分支), loop(循环), wait(等待)。\n"
     "必须包含 start 和 end 节点，节点 ID 格式 n1/n2/...，严格按顺序排列。\n"
     "atomic 节点的 params.atomic_action 必须指定具体动作类型。\n"
@@ -177,6 +178,58 @@ def _detect_actions_from_query(query: str) -> List[Dict[str, Any]]:
     """从自然语言查询中启发式检测动作序列。"""
     q = query.lower()
     actions: List[Dict[str, Any]] = []
+
+    # ---- 浏览器关键词检测（F015.3） ----
+    browser_detected = False
+    if re.search(r"打开.*网页|浏览|访问.*网址|打开.*链接", q):
+        url_match = re.search(
+            r"(?:打开|浏览|访问).*?(?:网页|网址|链接)[：:]?\s*(https?://[^\s，,。]+)",
+            q,
+        )
+        url = url_match.group(1) if url_match else "https://"
+        actions.append({
+            "id": "n2", "type": "atomic",
+            "params": {"atomic_action": "browser_navigate", "url": url},
+            "label": f"打开网页 {url}",
+            "next": "n3",
+        })
+        browser_detected = True
+
+    if re.search(r"点击.*按钮|点击.*链接|点击.*元素", q):
+        actions.append({
+            "id": "n3" if browser_detected else "n2",
+            "type": "atomic",
+            "params": {"atomic_action": "browser_click", "x": 0, "y": 0},
+            "label": "点击元素",
+            "next": "n4" if browser_detected else "n3",
+        })
+        browser_detected = True
+
+    if re.search(r"输入.*搜索|在.*框.*输入|网页.*输入", q):
+        tm = re.search(r"(?:输入|键入)(.+?)(?:然后|，|,|搜索|$)", q)
+        text = tm.group(1).strip().strip("。.。") if tm else ""
+        actions.append({
+            "id": "n3" if not browser_detected else "n4",
+            "type": "atomic",
+            "params": {"atomic_action": "browser_type", "text": text},
+            "label": f"输入 {text}",
+            "next": "n4" if not browser_detected else "n5",
+        })
+        browser_detected = True
+
+    if re.search(r"截.*网页|网页.*截图", q):
+        actions.append({
+            "id": "n3" if not browser_detected else "n4",
+            "type": "atomic",
+            "params": {"atomic_action": "browser_screenshot"},
+            "label": "网页截图",
+            "next": "n4" if not browser_detected else "n5",
+        })
+        browser_detected = True
+
+    # 如果已检测到浏览器动作，不再走原有关键词匹配
+    if browser_detected:
+        return actions
 
     # 检测关键词并构建对应动作
     if re.search(r"打开.+?(?:并|，|,|然后)", q):

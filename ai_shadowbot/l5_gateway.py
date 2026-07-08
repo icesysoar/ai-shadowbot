@@ -86,10 +86,16 @@ class L5Run:
                 observer=observer,
             )
             compiler = WorkflowCompiler(config)
+
+            # F015.3: 创建 BrowserWorker（auto_start=False，L5 网关不自动拉起 bridge）
+            from ai_shadowbot.browser_worker import BrowserWorker
+            browser_worker = BrowserWorker(auto_start=False)
+
             engine = Engine(
                 executor=executor,
                 guardrails=guardrails,
                 emergency_stop=emergency,
+                browser_worker=browser_worker,
             )
 
             # Step 1: 编译
@@ -196,9 +202,15 @@ def run_workflow(workflow_json: Dict[str, Any], mode: str = "dry_run") -> Dict[s
             emergency_stop=emergency,
             observer=observer,
         )
+
+        # F015.3: 创建 BrowserWorker（auto_start=False，L5 网关不自动拉起 bridge）
+        from ai_shadowbot.browser_worker import BrowserWorker
+        browser_worker = BrowserWorker(auto_start=False)
+
         engine = Engine(
             executor=executor,
             guardrails=guardrails,
+            browser_worker=browser_worker,
         )
 
         exec_result = engine.execute(wf)

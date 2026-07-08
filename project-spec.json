@@ -5,7 +5,7 @@
     "version": "0.1.1",
     "created_by": "ye-zhiqiu",
     "created_at": "2026-07-06",
-    "updated_by": "lin-zhiyu",
+    "updated_by": "sulin-yuan",
     "updated_at": "2026-07-08",
     "tech_stack": {
       "language": "Python >= 3.10",
@@ -195,6 +195,16 @@
       "who": "sulin-yuan",
       "when": "2026-07-08",
       "what": "Phase C 启动: F015 浏览器自动化节点。集成 Soara_browser Bridge(port 16789) → 6 种浏览器操作(navigate/click/type/screenshot/wait/scroll)。并行派发 lu-qianji(browser_worker+引擎+编译) + lin-zhiyu(前端节点)"
+    },
+    {
+      "who": "lu-qianji",
+      "when": "2026-07-08",
+      "what": "F015 浏览器自动化完成: browser_worker.py(BrowserWorker封装bridge API)+engine.py(browser_动作分流+lazy import)+compiler.py(浏览器关键词)+canvas_api.py(浏览器分类6节点)+test_browser.py(42 tests)。412/412 pass零回归。"
+    },
+    {
+      "who": "lin-zhiyu",
+      "when": "2026-07-08",
+      "what": "F015.2 前端浏览器节点: specs.ts新增6节点(browser_navigate/click/type/screenshot/wait/scroll)+theme-store.ts浏览器配色#6C5CE7。npm build通过。"
     }
   ],
   "consensus_review": {

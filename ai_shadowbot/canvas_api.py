@@ -87,6 +87,25 @@ PALETTE_NODES = [
     {"category": "控制", "type": "loop", "label": "循环", "node_type": "loop",
      "params": {"loop_type": "while", "condition": "", "max_iterations": 100},
      "desc": "循环执行子节点"},
+    # 浏览器（F015.3）
+    {"category": "浏览器", "type": "browser_navigate", "label": "打开网页", "node_type": "atomic",
+     "params": {"atomic_action": "browser_navigate", "url": "https://"},
+     "desc": "在浏览器中打开指定网页"},
+    {"category": "浏览器", "type": "browser_click", "label": "点击元素", "node_type": "atomic",
+     "params": {"atomic_action": "browser_click", "x": 0, "y": 0},
+     "desc": "在浏览器中点击指定坐标"},
+    {"category": "浏览器", "type": "browser_type", "label": "输入文本", "node_type": "atomic",
+     "params": {"atomic_action": "browser_type", "text": ""},
+     "desc": "在浏览器当前焦点输入文本"},
+    {"category": "浏览器", "type": "browser_screenshot", "label": "网页截图", "node_type": "atomic",
+     "params": {"atomic_action": "browser_screenshot"},
+     "desc": "截取当前浏览器页面"},
+    {"category": "浏览器", "type": "browser_wait", "label": "等待", "node_type": "atomic",
+     "params": {"atomic_action": "browser_wait", "seconds": 1},
+     "desc": "在浏览器中等待指定秒数"},
+    {"category": "浏览器", "type": "browser_scroll", "label": "滚动页面", "node_type": "atomic",
+     "params": {"atomic_action": "browser_scroll", "dx": 0, "dy": 0},
+     "desc": "在浏览器中滚动页面"},
 ]
 
 

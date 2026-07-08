@@ -1,5 +1,7 @@
 📖 [兰萃英] 知识预检完成 — 见 docs/wiki-prelude.md
 
+🔧 [2026-07-06] F015.2 浏览器节点前端 — specs.ts 新增6个浏览器节点 (browser_navigate/click/type/screenshot/wait/scroll)，theme-store.ts 新增浏览器分类配色 #6C5CE7，build 通过，已 push (lin-zhiyu)
+
 🛡️ [云见微] F003 安全护栏共识评审 — 见 docs/consensus-f003.md（默认未确认即拦截/三档确认默认/黑名单语义化；新增提示注入极高风）
 
 🚩 [2026-07-06] ReqAnaly 落共识到权威 spec (ye-zhiqiu)
@@ -251,3 +253,9 @@
 - 林织羽交付: 新增 SchedulerPanel/LogPanel/TemplatePanel; 重写 App.vue/GraphCanvas/api-service.ts
 - npm build 32 modules ✅; F013/F014 restored → 14/14 done
 - task.json completed=14/14, features.json 14/14 done
+
+🚩 [2026-07-08] [苏临渊] Phase C 全部完成 — 浏览器自动化节点 (F015) done 🎉 15/15
+- 鲁千机: browser_worker.py(BrowserWorker封装Soara_browser bridge HTTP API)+engine.py(browser_动作分流+lazy import+guardrails兼容)+compiler.py(浏览器关键词)+test_browser.py(42 tests)。412/412 pass 零回归。
+- 林织羽: specs.ts 新增6浏览器节点(browser_navigate/click/type/screenshot/wait/scroll)+theme-store.ts 配色#6C5CE7。npm build通过。
+- canvas_api.py: PALETTE_NODES新增"浏览器"分类6节点。
+- l5_gateway.py: BrowserWorker(auto_start=False)传Engine。

@@ -181,6 +181,7 @@ class Engine:
         guardrails: Guardrails,
         dry_run: bool = True,
         emergency_stop: Optional[EmergencyStop] = None,
+        browser_worker: Optional[Any] = None,
     ):
         if guardrails is None:
             raise ValueError("引擎必须接收 Guardrails 实例（不可为 None，§6.2 铁律 5）")
@@ -188,6 +189,7 @@ class Engine:
         self.guardrails = guardrails
         self._dry_run = dry_run
         self.emergency_stop = emergency_stop
+        self._browser_worker = browser_worker
         self._error_handler = ErrorHandler()
         self._node_map: Dict[str, Node] = {}
         self._workflow: Optional[Workflow] = None
@@ -505,13 +507,19 @@ class Engine:
                     started_at=started_at, finished_at=time.time(),
                 )
 
-        # 4. 委托 Executor 执行
-        try:
-            exec_result = self.executor.execute(action, dry_run=dry_run)
-        except Exception as e:
-            return self._handle_node_error(
-                node, scope, str(e), started_at
+        # 4. 浏览器动作走 browser_worker（F015.3 引擎集成）
+        if action_type.startswith("browser_"):
+            exec_result = self._execute_browser_action(
+                action_type, resolved_params, dry_run,
             )
+        else:
+            # 委托 Executor 执行
+            try:
+                exec_result = self.executor.execute(action, dry_run=dry_run)
+            except Exception as e:
+                return self._handle_node_error(
+                    node, scope, str(e), started_at
+                )
 
         # 5. 处理输出变量
         if node.output_variable and exec_result.performed:
@@ -541,6 +549,115 @@ class Engine:
             action_result=exec_result,
             variables_snapshot=scope.snapshot(),
         )
+
+    def _execute_browser_action(
+        self,
+        action_type: str,
+        resolved_params: dict,
+        dry_run: bool,
+    ) -> Any:
+        """执行浏览器动作（F015.3）—— lazy import browser_worker。
+
+        Args:
+            action_type: 以 browser_ 开头的动作类型
+            resolved_params: 解析后的参数字典
+            dry_run: 是否为演练模式
+
+        Returns:
+            ExecResult 兼容对象
+        """
+        from ai_shadowbot.executor import ExecResult
+
+        # dry_run 模式下不连 bridge，返回描述性结果
+        if dry_run:
+            return ExecResult(
+                action=Action(type=action_type, params=resolved_params),
+                performed=False,
+                blocked=False,
+                reason="dry_run 模式未真实执行浏览器动作",
+                summary=f"[dry_run] 将执行浏览器动作 {action_type}",
+            )
+
+        # 真实模式：lazy import browser_worker 并执行
+        try:
+            from ai_shadowbot.browser_worker import BrowserWorker
+        except ImportError as e:
+            return ExecResult(
+                action=Action(type=action_type, params=resolved_params),
+                performed=False,
+                blocked=True,
+                reason=f"browser_worker 不可用：{e}",
+                error=str(e),
+                summary=f"[错误] browser_worker 导入失败 —— {e}",
+            )
+
+        # 使用 engine 已构造的 browser_worker 或临时创建
+        bw = self._browser_worker
+        if bw is None:
+            bw = BrowserWorker(auto_start=False)
+
+        # 动作映射
+        _MAP = {
+            "browser_navigate": lambda: bw.navigate(
+                resolved_params.get("url", "https://example.com")
+            ),
+            "browser_click": lambda: bw.click(
+                x=int(resolved_params.get("x", 0)),
+                y=int(resolved_params.get("y", 0)),
+            ),
+            "browser_type": lambda: bw.type_text(
+                text=str(resolved_params.get("text", "")),
+            ),
+            "browser_screenshot": lambda: bw.screenshot(),
+            "browser_wait": lambda: bw.wait(
+                seconds=float(resolved_params.get("seconds", 1)),
+            ),
+            "browser_scroll": lambda: bw.scroll(
+                dx=int(resolved_params.get("dx", 0)),
+                dy=int(resolved_params.get("dy", 0)),
+            ),
+            "browser_extract_text": lambda: bw.extract_text(
+                selector=str(resolved_params.get("selector", "")),
+            ),
+        }
+
+        handler = _MAP.get(action_type)
+        if handler is None:
+            return ExecResult(
+                action=Action(type=action_type, params=resolved_params),
+                performed=False,
+                blocked=True,
+                reason=f"未知浏览器动作：{action_type}",
+                summary=f"[错误] 未知浏览器动作 {action_type}",
+            )
+
+        try:
+            result = handler()
+            if result.get("success"):
+                return ExecResult(
+                    action=Action(type=action_type, params=resolved_params),
+                    performed=True,
+                    blocked=False,
+                    summary=f"[执行] 浏览器动作 {action_type} 完成",
+                )
+            else:
+                return ExecResult(
+                    action=Action(type=action_type, params=resolved_params),
+                    performed=False,
+                    blocked=False,
+                    reason=f"浏览器动作执行失败",
+                    error=result.get("error", "未知错误"),
+                    summary=f"[错误] {action_type} —— {result.get('error', '未知错误')}",
+                )
+        except Exception as e:
+            return ExecResult(
+                action=Action(type=action_type, params=resolved_params),
+                performed=False,
+                blocked=False,
+                reason=f"执行出错：{e}",
+                error=str(e),
+                summary=f"[错误] {action_type} —— {e}",
+            )
 
     def _execute_wait(
         self,
