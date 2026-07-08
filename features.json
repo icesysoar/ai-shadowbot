@@ -294,7 +294,7 @@
       "id": "F012",
       "title": "可视化画布增强（Vue3+LiteGraph MVP 收口）",
       "description": "基于已迁移的 Vue 3 + @comfyorg/litegraph 画布（src/GraphCanvas.vue，status done 但 MVP 级），补齐生产级交互：①节点拖拽放置（调色板拖到画布落点创建，当前仅点击添加）②调度面板前端化（对接已存在的 /api/scheduler/*）③日志面板前端化（对接 /api/execution/{id}/detail|nodes|screenshot）④模板面板前端化（对接 /api/templates*）⑤属性面板 combo 候选值从后端 /api/palette 动态拉取 ⑥DPR 精细优化（高 DPI 清晰度与坐标缩放）。全部 additive，不破坏 F008 后端 canvas_api.py。",
-      "status": "in_progress",
+      "status": "done",
       "claimed_by": "lin-zhiyu",
       "depends_on": [
         "F008"
@@ -368,8 +368,8 @@
       "id": "F013",
       "title": "工程卫生与治理（task.json 刷新 / 临时文件清理 / git 初始化 / 规格一致性）",
       "description": "收口项目工程卫生，为 L5 自驱（B1 安全边界 commit+push、soara-rollback）提供前提：①刷新 task.json 补 F007–F011（当前仅到 F006）②清理根目录 15 个 _* 临时文件（_diag.py/_qa*.txt/_demo*.txt/_diff_*.txt/_gatesrc.txt/_git.txt/_tj.txt/_vt.txt）+ .autocode 下 3 个（_chk.py/_chk.txt/_verify_fix.py）③评估移除 auto-coding-agent/ 夹带目录（含 43KB zip）④git init + .gitignore + 首提交 ⑤清理旧 React Flow 残留 static/reactflow.css|reactflow.umd.js|canvas.html（见 B4 规格漂移反例）⑥README 刷新（pytest 370 passed；补 Vue 画布说明）⑦project-spec F008 描述已校正（2026-07-08）。",
-      "status": "planned",
-      "claimed_by": "",
+      "status": "done",
+      "claimed_by": "sulin-yuan",
       "depends_on": [],
       "acceptance_criteria": [
         "AC1: task.json 含 F001–F014 全部条目且状态/claimed_by 与 project-spec 一致。",
@@ -424,8 +424,8 @@
       "id": "F014",
       "title": "启动器与 L5 网关健壮性（端口统一 + --mode both 修复）",
       "description": "统一端口口径为 8792 并修复 --mode both 端口冲突：①l5_gateway.py 的 docstring 示例与 --port help 文案仍写 8787，统一为 8792（与 PORT 默认、run_server.py、launcher_gui.py 一致）②--mode both 时 HTTP 后台线程已占 8792，FastMCP stdio 回退尝试复用同端口导致冲突，需隔离传输层（stdio 不占端口 / 显式隔离）。run_server.py 与 launcher_gui.py 已用 8792，无需改。",
-      "status": "planned",
-      "claimed_by": "",
+      "status": "done",
+      "claimed_by": "sulin-yuan",
       "depends_on": [
         "F007"
       ],
